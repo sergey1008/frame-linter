@@ -1,0 +1,12 @@
+{
+  "name": "frame-linter-tools",
+  "private": true,
+  "type": "module",
+  "description": "Сборка встроенного словаря для проверки правописания: node tools/build-spell.mjs",
+  "dependencies": {
+    "dictionary-en": "^4.0.0",
+    "dictionary-ru": "^3.0.0",
+    "esbuild": "^0.25.0",
+    "nspell": "^2.1.5"
+  }
+}

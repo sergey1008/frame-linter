@@ -1,0 +1,7 @@
+.DS_Store
+node_modules/
+dist/
+# внутреннее: прокси к корпоративному ИИ-шлюзу, скриншоты, заметки для Claude Code
+ai-proxy.py
+screens/
+CLAUDE.md
