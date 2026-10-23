@@ -61,8 +61,3 @@ node tools/pack.mjs                       # dist/frame-linter-v1.1.0.zip
 Кнопка «Доступна версия» появляется у коллег, как только в ветке `main` лежит `version.json` с версией новее установленной, поэтому выкладывайте релиз с zip до или одновременно с пушем.
 
 Словари правописания пересобираются командой `cd tools && npm install && node build-spell.mjs`.
-
-## Сторонние компоненты
-
-- Иконки — [@vkontakte/icons](https://github.com/VKCOM/icons), MIT, © VK LLC.
-- Проверка правописания — [nspell](https://github.com/wooorm/nspell) (MIT), словари `dictionary-ru` (BSD-3-Clause) и `dictionary-en` (MIT и BSD).

@@ -1,6 +1,5 @@
 // Встраивает движок nspell и словари (русский, английский) в ui.html между маркерами SPELL-BEGIN / SPELL-END.
 // Запуск из папки плагина:  cd tools && npm install && node build-spell.mjs
-// Лицензии: nspell — MIT; dictionary-ru — BSD-3-Clause (A. Lebedev, LibreOffice); dictionary-en — MIT AND BSD.
 import fs from 'node:fs';
 import zlib from 'node:zlib';
 import path from 'node:path';
@@ -13,7 +12,7 @@ const dict = (name, f) => zlib.gzipSync(fs.readFileSync(path.join(here, 'node_mo
 
 const engine = await build({
   stdin: { contents: "import nspell from 'nspell'; globalThis.nspellFactory = nspell;", resolveDir: here, loader: 'js' },
-  bundle: true, minify: true, format: 'iife', platform: 'browser', write: false, target: 'es2020',
+  bundle: true, minify: true, legalComments: 'none', format: 'iife', platform: 'browser', write: false, target: 'es2020',
 });
 const code = engine.outputFiles[0].text.replace(/<\/script/gi, '<\\/script');
 const data = JSON.stringify({
