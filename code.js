@@ -31,10 +31,32 @@ const DEFAULTS = {
 const DEFAULT_NAME_RE = /^(Frame|Group|Rectangle|Ellipse|Line|Vector|Polygon|Star|Section|Component|Instance|Slice|Boolean|Union|Subtract|Intersect|Exclude|Image)\s*\d*$/i;
 
 // Версия плагина и репозиторий для проверки обновлений. Менять версию: node tools/bump.mjs 1.1.0 "что нового".
-const PLUGIN_VERSION = '1.0.0';
+const PLUGIN_VERSION = '1.1.0';
 const UPDATE_REPO = 'sergey1008/frame-linter';
 
 figma.showUI(__html__, { width: 900, height: 660, themeColors: true });
+
+// Свёрнутое окно и прижатие к краю: размер меняем сами, положение считаем от видимой области холста (в пикселях экрана).
+const WIN = { collapsed: false, dock: null, size: { w: 900, h: 660 } };
+const MINI = { w: 280, h: 48 };
+// reposition принимает координаты холста, а не экрана: переводим желаемую позицию (пиксели от левого верхнего угла видимого холста) в координаты холста.
+function applyDock() {
+  if (!WIN.dock || typeof figma.ui.reposition !== 'function') return;
+  try {
+    const z = figma.viewport.zoom, b = figma.viewport.bounds;
+    const vw = b.width * z, vh = b.height * z;
+    const sz = WIN.collapsed ? MINI : WIN.size, m = 8;
+    const px = { left: [m, m], right: [vw - sz.w - m, m], bottom: [(vw - sz.w) / 2, vh - sz.h - m] }[WIN.dock];
+    const sx = Math.max(0, px[0]), sy = Math.max(0, px[1]);
+    figma.ui.reposition(Math.round(b.x + sx / z), Math.round(b.y + sy / z));
+  } catch (e) {}
+}
+function applyWin() {
+  const sz = WIN.collapsed ? MINI : WIN.size;
+  figma.ui.resize(sz.w, sz.h);
+  applyDock();
+  figma.ui.postMessage({ type: 'win', collapsed: WIN.collapsed, dock: WIN.dock });
+}
 
 (async () => {
   const saved = await figma.clientStorage.getAsync('settings-v6');
@@ -42,12 +64,16 @@ figma.showUI(__html__, { width: 900, height: 660, themeColors: true });
   let skipped = [];
   try { skipped = JSON.parse(figma.root.getPluginData('skipped') || '[]'); } catch (e) {}
   if (ui.w && ui.h) figma.ui.resize(clampSize(ui.w, ui.h).w, clampSize(ui.w, ui.h).h);
+  if (ui.w && ui.h) WIN.size = clampSize(ui.w, ui.h);
+  const winSaved = (await figma.clientStorage.getAsync('win-v1')) || {};
+  WIN.dock = ['left', 'right', 'bottom'].includes(winSaved.dock) ? winSaved.dock : null;
   const ai = (await figma.clientStorage.getAsync('ai-v1')) || {};
   const dictMe = (await figma.clientStorage.getAsync('dict-v1')) || [];
   let dictFile = [];
   try { dictFile = JSON.parse(figma.root.getPluginData('spellDict') || '[]'); } catch (e) {}
   figma.ui.postMessage({ type: 'settings', settings: Object.assign({}, DEFAULTS, saved), ui, skipped, navDefaults: NAV_DEFAULTS, ai, dict: { me: dictMe, file: dictFile }, version: PLUGIN_VERSION, repo: UPDATE_REPO });
   postSelection();
+  applyWin();
 })();
 
 function clampSize(w, h) {
@@ -213,8 +239,21 @@ figma.ui.onmessage = async (msg) => {
     await figma.clientStorage.setAsync('ui-v1', msg.ui);
   } else if (msg.type === 'saveSkipped') {
     try { figma.root.setPluginData('skipped', JSON.stringify((msg.keys || []).slice(-1500))); } catch (e) {}
+  } else if (msg.type === 'navPick') {
+    let n = figma.currentPage.selection[0] || null;
+    if (n && n.type === 'INSTANCE') n = await n.getMainComponentAsync();
+    if (n && n.type === 'COMPONENT_SET') n = n.defaultVariant;
+    if (!n || n.type !== 'COMPONENT') figma.ui.postMessage({ type: 'navPicked', field: msg.field, error: 'Выдели на холсте инстанс нужного компонента (или сам компонент).' });
+    else figma.ui.postMessage({ type: 'navPicked', field: msg.field, key: n.key, name: n.parent && n.parent.type === 'COMPONENT_SET' ? `${n.parent.name} · ${n.name}` : n.name });
+  } else if (msg.type === 'win') {
+    if (msg.action === 'collapse') WIN.collapsed = true;
+    else if (msg.action === 'expand') WIN.collapsed = false;
+    else if (msg.action === 'toggle') WIN.collapsed = !WIN.collapsed;
+    else if (msg.action === 'dock') { WIN.dock = ['left', 'right', 'bottom'].includes(msg.dock) ? msg.dock : null; await figma.clientStorage.setAsync('win-v1', { dock: WIN.dock }); }
+    applyWin();
   } else if (msg.type === 'resize') {
     const z = clampSize(msg.w, msg.h);
+    if (!WIN.collapsed) WIN.size = z;
     figma.ui.resize(z.w, z.h);
   } else if (msg.type === 'pickComponent') {
     figma.ui.postMessage({ type: 'picked', which: msg.which, name: await componentNameFromSelection() });
@@ -1443,6 +1482,18 @@ async function navComponent(spec, cache, localAll) {
   if (!spec) return null;
   if (cache[spec]) return cache[spec];
   let c = null;
+  // Ссылка Figma на компонент или его инстанс из ЭТОГО файла (узел из чужого файла плагин по ссылке не откроет — для него нужен ключ или «Из выделения»).
+  const link = /figma\.com\/(?:design|file)\/[^/?#]+[^?#]*\?[^#]*node-id=([0-9]+)[-:]([0-9]+)/i.exec(spec);
+  if (link) {
+    try {
+      let n = await figma.getNodeByIdAsync(`${link[1]}:${link[2]}`);
+      if (n && n.type === 'INSTANCE') n = await n.getMainComponentAsync();
+      if (n && n.type === 'COMPONENT_SET') n = n.defaultVariant;
+      if (n && n.type === 'COMPONENT') c = n;
+    } catch (e) {}
+    if (c) cache[spec] = c;
+    return c;
+  }
   if (/^[0-9a-f]{40}$/i.test(spec)) {
     try { c = await figma.importComponentByKeyAsync(spec); } catch (e) {}
     if (!c) { try { c = (await figma.importComponentSetByKeyAsync(spec)).defaultVariant; } catch (e) {} }
@@ -1523,7 +1574,7 @@ async function navBuild(opts) {
   const cardC = await navComponent(cfg.linkCardKey, cache, localAll);
   const btnC = await navComponent(cfg.btnKey, cache, localAll);
   const missing = [[descC, 'название ряда'], [cardC, 'блок «Навигация»'], [btnC, 'кнопка над фреймом']].filter(([c]) => !c).map(([, n]) => n);
-  if (missing.length) return { ok: false, text: `Не найден компонент: ${missing.join(', ')}. Проверь ключи в «Компоненты навигации» (библиотека должна быть подключена к файлу).` };
+  if (missing.length) return { ok: false, text: `Не найден компонент: ${missing.join(', ')}. В настройках навигации укажи ключ, имя локального компонента или ссылку на компонент из этого файла. Проще всего: выдели на холсте инстанс нужного компонента и нажми «Из выделения» у его поля (библиотека должна быть подключена к файлу).` };
 
   await checkpoint('навигация по рядам', frames.length);
   // Пересборка: заполненный DescriptionCard переносим в новый блок, а не создаём заново.
