@@ -82,6 +82,8 @@
   .rl .rlabel { display: none; }
   .rl:hover:not(:disabled) { background: var(--hover); color: var(--tx); }
   .rl[aria-selected=true] { background: var(--sel); color: var(--tx); }
+  /* в светлой теме активная иконка синяя: серая на бледно-голубом фоне почти не видна */
+  html:not(.figma-dark) .rl[aria-selected=true], html:not(.figma-dark) .rl[aria-selected=true]:hover:not(:disabled) { color: var(--accent); }
   .badge { position: absolute; top: -3px; right: -5px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: var(--danger); color: #fff; font: 600 10px/16px var(--font); text-align: center; box-shadow: 0 0 0 2px var(--rail); }
   .livepill { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 14px; background: color-mix(in srgb, var(--ok) 16%, transparent); color: var(--ok); font-size: 12px; font-weight: 500; white-space: nowrap; }
   .livepill i { width: 6px; height: 6px; border-radius: 3px; background: var(--ok); }
@@ -101,8 +103,8 @@
   button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 30px; padding: 0 12px; border: 1px solid transparent; border-radius: 8px; background: var(--btn2); color: var(--tx); font: 500 12px/1 var(--font); cursor: pointer; white-space: nowrap; }
   button:hover:not(:disabled) { background: var(--btn2-hover); }
   button:disabled { opacity: .45; cursor: default; }
-  button.pri, button#run, button#fnDo, button#lyFix, button#swapDo, button#mulDo { background: var(--brand); border-color: var(--brand); color: #fff; }
-  button.pri:hover:not(:disabled), button#run:hover:not(:disabled), button#fnDo:hover:not(:disabled), button#lyFix:hover:not(:disabled), button#swapDo:hover:not(:disabled), button#mulDo:hover:not(:disabled) { background: var(--brand-hover); }
+  button.pri, button#run, button#swapDo, button#mulDo { background: var(--brand); border-color: var(--brand); color: #fff; }
+  button.pri:hover:not(:disabled), button#run:hover:not(:disabled), button#swapDo:hover:not(:disabled), button#mulDo:hover:not(:disabled) { background: var(--brand-hover); }
   button.sm { height: 28px; padding: 0 10px; }
   button.ghost { background: transparent; border-color: transparent; color: var(--tx2); }
   button.ghost:hover:not(:disabled) { background: var(--hover); color: var(--tx); }
@@ -140,14 +142,17 @@
   .seg { display: inline-flex; padding: 2px; border-radius: 7px; background: var(--field); border: 1px solid var(--line); }
   .seg button { height: 26px; padding: 0 10px; border: 0; border-radius: 5px; background: transparent; color: var(--tx2); }
   .seg button:hover:not(:disabled) { background: transparent; color: var(--tx); }
-  .seg button[aria-pressed=true] { background: var(--sel); color: var(--tx); }
+  .seg button[aria-pressed=true] { background: var(--sel); color: var(--accent); }
+  .seg button[aria-pressed=true]:hover:not(:disabled) { background: var(--sel); color: var(--accent); }
   .stepper { display: flex; align-items: center; height: 30px; border: 1px solid var(--line2); border-radius: 6px; background: var(--field); overflow: hidden; flex: none; }
   .stepper button { height: 28px; width: 28px; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--tx2); font-size: 14px; }
   .stepper input[type=text] { width: 26px; height: 28px; padding: 0; border: 0; border-radius: 0; background: transparent; text-align: center; font: 500 12px var(--mono); }
   .stepper span { font-size: 11px; color: var(--tx3); margin-right: 2px; }
-  .num { display: flex; align-items: center; gap: 8px; height: 32px; border: 1px solid var(--line2); border-radius: 6px; background: var(--field); padding: 0 10px 0 6px; }
+  .num { display: flex; align-items: center; gap: 8px; height: 32px; border: 1px solid var(--line2); border-radius: 8px; background: var(--field); padding: 0 10px; }
+  .num:focus-within { outline: 2px solid var(--accent); outline-offset: 1px; } /* фокус на всю обёртку, а не на внутреннее поле */
   .num:has(input.bad) { border-color: var(--danger); }
-  .num input[type=text] { border: 0; background: transparent; height: 30px; padding: 0; min-width: 0; font: 500 12px var(--mono); }
+  .num input[type=text] { flex: 1; border: 0; background: transparent; height: 30px; padding: 0; min-width: 0; font: 500 12px var(--mono); }
+  .num input[type=text]:focus-visible { outline: none; }
   .num .u { font-size: 11px; color: var(--tx3); }
   .L { width: 18px; height: 18px; border-radius: 4px; background: color-mix(in srgb, var(--warn) 22%, transparent); color: var(--warn); font: 700 10.5px/18px var(--font); text-align: center; flex: none; }
 
@@ -175,14 +180,6 @@
   .pill { display: inline-flex; align-items: center; height: 22px; padding: 0 9px; border-radius: 11px; border: 1px solid var(--line2); background: var(--field); color: var(--tx2); font: 500 11px/1 var(--font); cursor: pointer; }
   .pill.st { height: auto; padding: 2px 7px; font-size: 10px; cursor: default; text-transform: none; letter-spacing: 0; }
   #libRow:has(#libBox:empty) { display: none; }
-  details.reblock { border: 1px solid var(--line); border-radius: 10px; background: var(--card); }
-  details.reblock > summary { list-style: none; display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 12px 14px; }
-  details.reblock > summary::-webkit-details-marker { display: none; }
-  details.reblock > summary .caret { color: var(--tx2); display: inline-flex; transition: transform .15s; }
-  details.reblock[open] > summary .caret { transform: rotate(90deg); }
-  details.reblock > summary b { font-size: 13px; font-weight: 600; }
-  details.reblock > summary span.st { font-size: 12px; color: var(--tx3); }
-  details.reblock .grp { border-width: 1px 0 0; border-radius: 0 0 10px 10px; background: transparent; }
   .aistat-ok { color: var(--ok); }
   .aistat-err { color: var(--danger); }
   .okmark { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--ok); }
@@ -207,6 +204,8 @@
   .flt.warn[aria-pressed=true] { background: color-mix(in srgb, var(--warn) 14%, transparent); border-color: color-mix(in srgb, var(--warn) 40%, transparent); }
   .flt.info[aria-pressed=true] { background: color-mix(in srgb, var(--info) 14%, transparent); border-color: color-mix(in srgb, var(--info) 40%, transparent); }
   .sws { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-left: auto; }
+  #timeLine { font-size: 12px; color: var(--tx3); white-space: nowrap; }
+  #timeLine:empty { display: none; }
   .sumright { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; text-align: left; font-size: 12px; color: var(--tx3); line-height: 1.5; }
   .sumright:empty, .sumright:not(:has(> :not(:empty):not(#checksLine))) { display: none; } /* #checksLine скрыт, но не пуст — не считаем его содержимым */
   .sumright button.link { font-size: 12px; color: var(--warn); display: inline-flex; align-items: center; gap: 6px; }
@@ -221,18 +220,24 @@
   .search input[type=text] { height: 30px; padding-left: 30px; border-color: var(--line2); }
   .mscroll { flex: 1; min-height: 0; overflow: auto; padding: 6px 6px 10px; }
   .detail { display: none; }
-  .empty { text-align: center; padding: 36px 16px; color: var(--tx2); }
+  /* у всех пустых состояний одинаковый отступ сверху; они прижаты к верху области, а не центрируются */
+  :root { --empty-top: 96px; }
+  .empty { text-align: center; padding: var(--empty-top) 16px 36px; color: var(--tx2); }
   .empty b { display: block; color: var(--tx); font-size: 13px; margin-bottom: 4px; }
   .empty button { margin-top: 12px; }
   .banner { padding: 10px 12px; border-radius: 8px; margin: 6px; background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--warn); font-size: 12px; }
   .banner.dng { border-left-color: var(--danger); }
   .banner button { margin-top: 8px; }
-  .ghead { display: flex; width: 100%; gap: 8px; align-items: center; justify-content: flex-start; height: auto; padding: 8px 10px 6px; border: 0; border-radius: 6px; background: none; color: var(--tx2); font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+  .ghead { display: flex; width: 100%; gap: 8px; align-items: center; justify-content: flex-start; height: auto; padding: 8px 10px 6px; border: 0; border-radius: 6px; background: var(--bg); color: var(--tx2); font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+    /* заголовок группы «прилипает» к верху списка; тень закрывает зазор над ним, чтобы слои не просвечивали */
+    position: sticky; top: 0; z-index: 3; box-shadow: 0 -6px 0 0 var(--bg); }
   .ghead:hover:not(:disabled) { background: var(--hover); }
   .ghead .caret { display: inline-flex; color: var(--tx2); }
   .ghead .cnt { margin-left: auto; font-weight: 500; color: var(--tx3); font-variant-numeric: tabular-nums; }
   .more { display: flex; width: 100%; justify-content: flex-start; height: 30px; padding-left: 37px; border: 0; background: transparent; color: var(--tx2); font-weight: 400; }
   .issue { margin: 1px 0; border-radius: 7px; }
+  /* прилипший заголовок группы закрывает верх списка: при прокрутке к карточке учитываем его высоту */
+  .issue, .chead { scroll-margin-top: 38px; scroll-margin-bottom: 8px; }
   .issue:hover { background: var(--hover); }
   .issue.open { background: var(--sel); box-shadow: inset 0 0 0 1px var(--line2); }
   .issue.seen .ihead { opacity: .7; }
@@ -240,7 +245,7 @@
   .issue.fixed .msg { text-decoration: line-through; }
   .issue .sev.fixmark { color: var(--ok); font-weight: 700; text-align: center; }
   .box.inst { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
-  .empty.slim { padding: 12px 16px 8px; }
+  .empty.slim { padding: 12px 16px 8px; }  /* короткая заглушка над списком — без большого отступа */
   .ihead { display: flex; gap: 10px; align-items: flex-start; padding: 9px 12px; cursor: pointer; border-radius: 7px; min-width: 0; }
   .sev { display: inline-flex; flex: none; margin-top: 1px; }
   .sevi { display: inline-flex; vertical-align: middle; }
@@ -259,9 +264,6 @@
   .done:hover { background: var(--hover); }
   details.handled { margin: 8px 4px 0; }
   details.handled summary { cursor: pointer; font-weight: 600; margin: 0 4px 6px; font-size: 12px; color: var(--tx2); }
-  .confirm { flex-basis: 100%; padding: 10px 12px; border-radius: 8px; background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--warn); margin: 4px 0; font-size: 12px; }
-  .confirm.dng { border-left-color: var(--danger); }
-  .confirm .row { margin-top: 8px; }
   .fix { display: inline-flex; align-items: center; gap: 6px; }
   .fix .cnt { opacity: .85; }
 
@@ -275,14 +277,40 @@
   .sevpill.warn { background: color-mix(in srgb, var(--warn) 16%, transparent); color: var(--warn); }
   .sevpill.info { background: color-mix(in srgb, var(--info) 16%, transparent); color: var(--info); }
   .dpane h2 { margin: 0; font-size: 15px; font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
-  .dpane .why { margin: 6px 0 0; font-size: 12px; color: var(--tx2); line-height: 1.55; }
   .box { border-radius: 8px; background: var(--field); border: 1px solid var(--line); padding: 12px 14px; }
   .box .k { font-size: 11px; font-weight: 500; letter-spacing: .04em; text-transform: uppercase; color: var(--tx3); margin-bottom: 8px; }
   .box .line1 { display: flex; align-items: center; gap: 8px; font-size: 13px; flex-wrap: wrap; }
   .box .note { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); font-size: 12px; color: var(--tx2); }
   .box.hl { background: color-mix(in srgb, var(--accent) 10%, var(--bg)); border-color: color-mix(in srgb, var(--accent) 28%, transparent); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .box.hl .t { flex: 1; font-size: 12.5px; min-width: 160px; }
+  .box.hl.grp { display: block; }
+  .box.hl.grp .ghd { margin-bottom: 10px; }
+  .box.hl.grp .k { margin-bottom: 4px; }
+  .box.hl.grp .ghd .meta { margin-top: 6px; }
   .swatch { width: 22px; height: 22px; border-radius: 5px; box-shadow: inset 0 0 0 1px var(--line2); flex: none; }
+  .chead { display: flex; width: 100%; gap: 8px; align-items: flex-start; justify-content: flex-start; text-align: left; height: auto; padding: 8px 10px; margin: 1px 0; border: 0; border-radius: 7px; background: none; color: var(--tx); font: inherit; white-space: normal; }
+  .chead:hover:not(:disabled) { background: var(--hover); }
+  .chead.open { background: var(--sel); box-shadow: inset 0 0 0 1px var(--line2); }
+  .chead .caret { display: inline-flex; color: var(--tx3); margin-top: 3px; }
+  .chead .ct { flex: 1; min-width: 0; }
+  .chead .cmsg { font-size: 13px; line-height: 1.35; overflow-wrap: anywhere; }
+  .chead .csub { margin-top: 2px; font-size: 11px; color: var(--tx3); overflow-wrap: anywhere; }
+  .chead .cnt { margin-left: auto; font-weight: 500; color: var(--tx3); font-variant-numeric: tabular-nums; }
+  .cbody { margin-left: 18px; }
+  .where .pv { height: 150px; margin-bottom: 10px; border-radius: 6px; display: flex; align-items: center; justify-content: center; overflow: hidden; color: var(--tx3); background: repeating-conic-gradient(#8a8a8a 0 25%, #a4a4a4 0 50%) 50% / 14px 14px; }
+  .where .pv img { max-width: 100%; max-height: 100%; object-fit: contain; image-rendering: auto; }
+  .where .pv.empty { background: var(--chip); font-size: 12px; }
+  .where .crumbs { font-size: 12px; color: var(--tx2); overflow-wrap: anywhere; }
+  .vr { padding: 8px 0; }
+  .vr + .vr { border-top: 1px solid var(--line); }
+  .vr .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .vr .lbl { font: 12.5px/1.4 var(--mono); color: var(--tx); }
+  .vr .nr { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; font-size: 12px; color: var(--tx2); text-align: right; }
+  .vr .nr b { font-weight: 500; color: var(--tx); }
+  .vsel { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .vsel select { flex: 1; min-width: 0; }
+  .vsel button { flex: none; }
+  .vnote { display: flex; align-items: center; gap: 6px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); font-size: 12px; color: var(--tx2); }
   .dacts { padding: 0; }
   .dacts .acts { padding: 0; }
   .dacts .acts > div:first-child { margin-top: 0; }
@@ -305,14 +333,20 @@
   #fnPrev.ok { background: color-mix(in srgb, var(--ok) 14%, var(--bg)); border-color: color-mix(in srgb, var(--ok) 40%, transparent); color: var(--ok); }
   #fnPrev.warnt { color: var(--warn); }
   #fnPrev.errt { color: var(--danger); }
-  .aside { width: 340px; flex: none; border-left: 1px solid var(--line); background: var(--field); padding: 16px; display: none; flex-direction: column; gap: 12px; overflow: auto; }
-  .aside .k { font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--tx2); }
-  .dg { border-radius: 12px; background: var(--card); border: 1px solid var(--line); padding: 8px 0; overflow: hidden; }
+  .navbar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 12px 20px; border-bottom: 1px solid var(--line); flex: none; }
+  /* «Создать / обновить» — второстепенное действие: синий текст без фона и обводки; «?» уходит вправо */
+  .navbar #fnDo { background: transparent; border-color: transparent; color: var(--accent); }
+  .navbar #fnDo:hover:not(:disabled) { background: var(--btn2-hover); }
+  #navEmpty { max-width: 560px; margin: -14px auto 0; padding-top: calc(var(--empty-top) - 55px); display: flex; flex-direction: column; gap: 14px; } /* выравнивание с другими вкладками: −14px — разница внутренних отступов (20 и 6), −55px — высота панели кнопок над областью */
+  #navEmpty { text-align: center; }
+  #navEmpty h2 { margin: 0; font-size: 13px; font-weight: 600; }
+  #navEmpty .hint { margin: 0; font-size: 12.5px; color: var(--tx2); line-height: 1.5; }
+  #navEmpty .dg { max-width: 300px; width: 100%; margin: 0 auto; }
+  #navHow .dg { max-width: 300px; }
+  .dg { border-radius: 12px; background: var(--card); border: 1px solid var(--line); padding: 6px 0; overflow: hidden; }
   .dg svg { display: block; width: 100%; height: auto; }
   .dg .nm { fill: var(--tx3); font: 500 8.5px var(--font); }
-  .dg .dl { fill: var(--tx); font: 600 9.5px var(--mono); }
-  .lg { display: flex; flex-direction: column; gap: 6px; font-size: 11.5px; color: var(--tx2); }
-  .lg > div { display: flex; gap: 8px; align-items: center; }
+  .dg .dl { fill: var(--tx2); font: 500 10px var(--mono); }
 
   /* Инструменты */
   .tbody { flex: 1; min-height: 0; display: flex; }
@@ -360,7 +394,6 @@
     .detail { display: block; flex: 1; min-width: 0; overflow: auto; }
     .two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .aside { display: flex; }
   }
   /* Узкое окно — навигация сверху, всё в одну колонку */
   @media (max-width: 719px) {
@@ -410,10 +443,10 @@
     #tab-spell .detail { display: block; flex: none; max-height: 55%; overflow: auto; border-top: 1px solid var(--line); }
     .optl span { display: none; }
   }
-  #tab-check.cfg-open .split, #tab-check.cfg-open .sumbar, #tab-spell.cfg-open .split, #tab-spell.cfg-open .sumbar, #tab-spell.cfg-open > .pfoot, #tab-nav.sub-settings .navmain, #tab-nav.sub-settings .aside, #tab-nav.sub-settings > .pfoot { display: none !important; }
+  #tab-check.cfg-open .split, #tab-check.cfg-open .sumbar, #tab-spell.cfg-open .split, #tab-spell.cfg-open .sumbar, #tab-spell.cfg-open > .pfoot, #tab-nav.sub-settings .navmain, #tab-nav.sub-settings .navbar { display: none !important; }
   #tab-nav:not(.sub-settings) .navcfg { display: none; }
   .navcfg { display: flex; flex-direction: column; gap: 12px; }
-  .navmain { display: flex; flex-direction: column; gap: 14px; }
+  .navmain { display: flex; flex-direction: column; gap: 14px; flex: 1; min-height: 0; }
   .htabs { display: flex; gap: 20px; align-self: stretch; }
   .htabs button { height: 52px; margin-bottom: -1px; padding: 0 1px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: none; color: var(--tx3); font: 600 15px/1 var(--font); }
   .htabs button:hover:not(:disabled) { background: none; color: var(--tx2); }
@@ -434,7 +467,7 @@
   #out > :not(.intro) { flex: none; }
   #tab-check.nores .detail { display: none !important; }
   #tab-check.nores .mlist { flex: 1; width: auto; border-right: 0; }
-  .empty.intro { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px 16px; }
+  .empty.intro { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: var(--empty-top) 16px 24px; }
   .empty.intro .introtop { flex: none; max-width: 340px; }
   .empty.intro .introtop > div:not(.runphrase) { margin-top: 14px; }
   .kbdwrap { flex: none; margin-top: 44px; }
@@ -495,7 +528,7 @@
         <label class="r" title="Frame или Group, внутри которых лежит ровно один слой"><span class="rt">Лишние обёртки<small>frame / group с одним потомком</small></span><input type="checkbox" id="checkStructure"></label>
         <label class="r subr" id="subWrap"><span class="rt">└ только с дефолтным именем<small>Frame 12, Group 3</small></span><input type="checkbox" id="onlyDefaultNames"></label>
         <label class="r"><span class="rt">Чистка<small>Скрытые слои, пустые контейнеры, дубли</small></span><input type="checkbox" id="checkCleanup"></label>
-        <label class="r" title="Проверка перед передачей макета в разработку"><span class="rt">Передача в разработку<small>Отсутствующие шрифты, пустые тексты</small></span><input type="checkbox" id="checkHandoff"></label>
+        <label class="r" title="Проверка перед передачей макета в разработку"><span class="rt">Отсутствующие шрифты, пустые тексты</span><input type="checkbox" id="checkHandoff"></label>
        </div>
       </section>
       <section><h2 class="gt">Режим</h2>
@@ -516,7 +549,7 @@
         </div>
        </div>
        <label class="r"><span class="rt">Предлагать токены из дизайн-системы</span><input type="checkbox" id="suggestTokens"></label>
-       <label class="r" id="lblLib"><span class="rt">Включая подключённые библиотеки<small>Первый запуск медленнее, потом кэш. Только библиотеки из Assets → Libraries.</small></span><input type="checkbox" id="includeLibrary"></label>
+       <label class="r" id="lblLib"><span class="rt">Включая подключённые библиотеки<small>Первый запуск медленнее, потом кэш. Только библиотеки из Assets → Libraries</small></span><input type="checkbox" id="includeLibrary"></label>
        <div class="r"><span class="rt">Библиотеки<small id="libStat">Токены ещё не загружены</small></span><button id="libList">Выбрать</button><button id="tokRefresh" class="ico" aria-label="Обновить токены" title="Обновить токены"><span class="vki" data-vk="refresh" data-s="14"></span></button></div>
        <div class="r col" id="libRow"><div id="libBox"></div></div>
        <div class="r"><label class="rt" for="spacingTolerance">Допуск ≈ для отступов и радиусов<small>При 2 px отступ 15 предложит токен 16</small></label>
@@ -525,33 +558,30 @@
       <div class="err" id="spacingToleranceErr" hidden>Нужно число, например 2</div>
      </section>
     </div>
-    <details class="reblock" id="reDetails">
-     <summary><span class="caret"><span class="vki" data-vk="right" data-s="12"></span></span><b>Шаблоны имён · регулярные выражения</b><span class="st" id="reState">по умолчанию</span></summary>
-     <div class="grp">
-      <div class="r"><span class="rt" style="font-size:12px;color:var(--tx3)">Для опытных пользователей. Если шаблон пустой или не менялся, проверяются только дефолтные имена вроде Frame 12 и стандартные форматы компонентов.</span></div>
-      <div class="r top"><label for="blockPattern">Блок<small>frame / group</small></label>
-       <div class="rbody"><input type="text" class="mono" id="blockPattern" placeholder="^[a-z0-9]+(-[a-z0-9]+)*$">
-        <div class="rhint">Пусто — запрещены только дефолтные имена<span class="grow"></span>Пресеты:<button type="button" class="pill" id="kebabFill">kebab-case</button><button type="button" class="pill" id="camelFill">camelCase</button></div>
-        <div class="err" id="blockPatternErr" hidden>Невалидное выражение — правило не сработает</div></div></div>
-      <div class="r top"><label for="componentPattern">Компонент</label>
-       <div class="rbody"><input type="text" class="mono" id="componentPattern">
-        <div class="rhint">Пример: <span class="code">Category/ButtonPrimary</span><span class="grow"></span><span class="okmark" id="okComp"></span></div>
-        <div class="err" id="componentPatternErr" hidden>Невалидное выражение — правило не сработает</div></div></div>
-      <div class="r top"><label for="variantPattern">Вариант</label>
-       <div class="rbody"><input type="text" class="mono" id="variantPattern">
-        <div class="rhint">Формат: <span class="code">Property=Value, Property=Value</span><span class="grow"></span><span class="okmark" id="okVar"></span></div>
-        <div class="err" id="variantPatternErr" hidden>Невалидное выражение — правило не сработает</div></div></div>
+    <section id="secNames"><h2 class="gt">Имена блоков</h2>
+     <div class="grp"><div class="r col"><span class="rt">Как называть frame и group<small>Дефолтные имена вроде Frame 12 отмечаются всегда</small></span>
+      <div class="pills" role="radiogroup" aria-label="Стиль имён блоков">
+       <label class="pillcb"><input type="radio" name="namePreset" value="any"><span>Любые, кроме дефолтных</span></label>
+       <label class="pillcb"><input type="radio" name="namePreset" value="kebab"><span>kebab-case</span></label>
+       <label class="pillcb"><input type="radio" name="namePreset" value="camel"><span>camelCase</span></label>
+       <label class="pillcb"><input type="radio" name="namePreset" value="pascal"><span>PascalCase</span></label>
+       <label class="pillcb" id="presetCustomLbl" hidden><input type="radio" name="namePreset" value="custom"><span>Свой шаблон</span></label>
+      </div></div></div>
+     <div hidden>
+      <input type="text" id="blockPattern"><div id="blockPatternErr" hidden></div>
+      <input type="text" id="componentPattern"><div id="componentPatternErr" hidden></div>
+      <input type="text" id="variantPattern"><div id="variantPatternErr" hidden></div>
      </div>
-    </details>
-    <div class="grp"><div class="r"><span class="rt">Вернуть настройки по умолчанию<small>Сбросит галочки и шаблоны проверки и навигации. Словари останутся</small></span><button id="resetSettings">Сбросить</button></div></div>
+    </section>
    </div>
     <section class="sumbar" id="sumbar" hidden>
       <div id="sum" aria-live="polite"></div>
       <div class="sws">
+       <div id="timeLine"></div>
        <label class="optl" title="Ставит заметки на слоях с замечаниями"><input type="checkbox" id="swAnn"><span>Добавить заметки</span></label>
        <button id="run" class="pri" title="Проверить (Cmd/Ctrl+Enter)">Проверить всю страницу</button>
       </div>
-      <div class="sumright"><div id="timeLine"></div><div id="tokLine"></div><div id="annMsg"></div><div class="runphrase" id="runPhraseBar" hidden></div><div id="checksLine"></div></div>
+      <div class="sumright"><div id="tokLine"></div><div id="annMsg"></div><div class="runphrase" id="runPhraseBar" hidden></div><div id="checksLine"></div></div>
     </section>
     <div class="split">
       <div class="mlist">
@@ -563,6 +593,10 @@
 
   <!-- ===== Навигация ===== -->
   <div id="tab-nav" class="panel" hidden>
+   <div class="navbar">
+    <button id="lyScan" class="pri">Проверить расстояния</button>
+    <button id="fnDo" disabled>Создать / обновить</button>
+   </div>
    <div class="nbody">
     <div class="scroll pad" style="gap:12px">
      <div class="navcfg">
@@ -576,55 +610,47 @@
      </section>
 
      <section class="step" id="fnComp">
-      <h2 class="sh"><span class="n">2</span>Компоненты<span class="grow"></span><button class="link" id="fnCompReset">вернуть по умолчанию</button></h2>
-      <div class="hint" style="margin-top:-6px">Ключ (key) из библиотеки или имя локального компонента. Значения по умолчанию — компоненты MP-DS.</div>
-      <div style="display:flex;flex-direction:column;gap:6px">
-       <div><div class="cmp"><span class="ci"><span class="vki" data-vk="list" data-s="14"></span></span><span class="ct">DescriptionCard<span class="hint">Слот списка выключен — название ряда пишешь сам</span></span><button class="ghost sm" data-cmp="fnDesc">Заменить</button></div><div class="cmpedit" id="cmpedit-fnDesc" hidden><input type="text" id="fnDesc" aria-label="Карточка описания (DescriptionCard)"><button class="sm" data-pick="fnDesc" title="Выдели инстанс нужного компонента на холсте и нажми">Из выделения</button></div></div>
-       <div><div class="cmp"><span class="ci"><span class="vki" data-vk="link" data-s="14"></span></span><span class="ct">LinkCard<span class="hint">Блок «Навигация», слот LinksSlot — ссылки на каждый фрейм</span></span><button class="ghost sm" data-cmp="fnCard">Заменить</button></div><div class="cmpedit" id="cmpedit-fnCard" hidden><input type="text" id="fnCard" aria-label="Блок «Навигация» (LinkCard)"><button class="sm" data-pick="fnCard" title="Выдели инстанс нужного компонента на холсте и нажми">Из выделения</button></div></div>
-       <div><div class="cmp"><span class="ci"><span class="vki" data-vk="link" data-s="14"></span></span><span class="ct">ButtonLink<span class="hint">Ссылка в LinkCard, если в слоте пусто</span></span><button class="ghost sm" data-cmp="fnLink">Заменить</button></div><div class="cmpedit" id="cmpedit-fnLink" hidden><input type="text" id="fnLink" aria-label="Ссылка (ButtonLink)"><button class="sm" data-pick="fnLink" title="Выдели инстанс нужного компонента на холсте и нажми">Из выделения</button></div></div>
-       <div><div class="cmp"><span class="ci"><span class="vki" data-vk="back" data-s="14"></span></span><span class="ct">Кнопка возврата<span class="hint">Над каждым фреймом · ArrowLeft слева</span></span><button class="ghost sm" data-cmp="fnBtn">Заменить</button></div><div class="cmpedit" id="cmpedit-fnBtn" hidden><input type="text" id="fnBtn" aria-label="Кнопка над фреймом (Button)"><button class="sm" data-pick="fnBtn" title="Выдели инстанс нужного компонента на холсте и нажми">Из выделения</button></div></div>
+      <h2 class="sh"><span class="n">2</span>Вид блока<span class="grow"></span><button class="link" id="fnCompReset">вернуть по умолчанию</button></h2>
+      <div class="pills" role="radiogroup" aria-label="Вид блока навигации">
+       <label class="pillcb"><input type="radio" name="navMode" value="components"><span>Мои компоненты</span></label>
+       <label class="pillcb"><input type="radio" name="navMode" value="simple"><span>Простой вид</span></label>
+      </div>
+      <div class="hint" id="navModeHint" style="margin-top:-4px"></div>
+      <div id="navCompRows" style="display:flex;flex-direction:column;gap:6px">
+       <div class="hint">Ключ (key) из библиотеки или имя локального компонента</div>
+       <div><div class="cmp"><span class="ci"><span class="vki" data-vk="list" data-s="14"></span></span><span class="ct">Заголовок<span class="hint">Название ряда</span></span><button class="ghost sm" data-cmp="fnDesc">Заменить</button></div><div class="cmpedit" id="cmpedit-fnDesc" hidden><input type="text" id="fnDesc" aria-label="Компонент заголовка ряда"><button class="sm" data-pick="fnDesc" title="Выдели инстанс нужного компонента на холсте и нажми">Из выделения</button></div></div>
+       <div><div class="cmp"><span class="ci"><span class="vki" data-vk="link" data-s="14"></span></span><span class="ct">Навигация<span class="hint">Блок со ссылками на фреймы ряда</span></span><button class="ghost sm" data-cmp="fnCard">Заменить</button></div><div class="cmpedit" id="cmpedit-fnCard" hidden><input type="text" id="fnCard" aria-label="Компонент блока навигации"><button class="sm" data-pick="fnCard" title="Выдели инстанс нужного компонента на холсте и нажми">Из выделения</button></div></div>
+       <div><div class="cmp"><span class="ci"><span class="vki" data-vk="back" data-s="14"></span></span><span class="ct">Кнопка возврата к навигации<span class="hint">Над каждым фреймом</span></span><button class="ghost sm" data-cmp="fnBtn">Заменить</button></div><div class="cmpedit" id="cmpedit-fnBtn" hidden><input type="text" id="fnBtn" aria-label="Компонент кнопки возврата к навигации"><button class="sm" data-pick="fnBtn" title="Выдели инстанс нужного компонента на холсте и нажми">Из выделения</button></div></div>
       </div>
      </section>
 
      <section class="step">
       <h2 class="sh"><span class="n">3</span>Расстояния<span class="grow"></span><span class="hint" style="font-weight:400">допуск 1 px · пустое не проверяется</span></h2>
       <div class="three">
-       <div><label class="lbl" for="navGap">Навигация → фрейм</label><div class="num"><span class="L">A</span><input type="text" id="navGap" inputmode="decimal"><span class="u">px</span></div><div class="err" id="navGapErr" hidden>Нужно число, например 280</div></div>
-       <div><label class="lbl" for="frameGap">Между фреймами</label><div class="num"><span class="L">B</span><input type="text" id="frameGap" inputmode="decimal"><span class="u">px</span></div><div class="err" id="frameGapErr" hidden>Нужно число, например 280</div></div>
-       <div><label class="lbl" for="rowGap">Между рядами</label><div class="num"><span class="L">C</span><input type="text" id="rowGap" inputmode="decimal"><span class="u">px</span></div><div class="err" id="rowGapErr" hidden>Нужно число, например 600</div></div>
+       <div><label class="lbl" for="navGap">Навигация → фрейм</label><div class="num"><input type="text" id="navGap" inputmode="decimal"><span class="u">px</span></div><div class="err" id="navGapErr" hidden>Нужно число, например 280</div></div>
+       <div><label class="lbl" for="frameGap">Между фреймами</label><div class="num"><input type="text" id="frameGap" inputmode="decimal"><span class="u">px</span></div><div class="err" id="frameGapErr" hidden>Нужно число, например 280</div></div>
+       <div><label class="lbl" for="rowGap">Между рядами</label><div class="num"><input type="text" id="rowGap" inputmode="decimal"><span class="u">px</span></div><div class="err" id="rowGapErr" hidden>Нужно число, например 600</div></div>
       </div>
-      <label class="r" style="padding:0;min-height:0;border:0"><span class="rt">Выравнивать сразу после создания или обновления<small>Иначе — кнопкой «Проверить расстояния» внизу</small></span><input type="checkbox" id="fnAlign"></label>
+      <div><button class="link" id="navHowBtn" aria-expanded="false">Показать схему</button></div>
+      <div id="navHow" hidden>
+       <p class="hint" style="margin:0 0 10px">Плагин соберёт слева от каждого ряда блок со ссылками на фреймы и добавит над ними кнопки возврата. Расстояния на схеме берутся из полей выше</p>
+       <div class="dg" id="navDg2" role="img" aria-label="Схема расстояний: от блока навигации до фрейма, между фреймами и между рядами"></div>
+      </div>
+      <label class="r" style="padding:0;min-height:0;border:0"><span class="rt">Выравнивать сразу после создания или обновления<small>Иначе — кнопкой «Проверить расстояния»</small></span><input type="checkbox" id="fnAlign"></label>
      </section>
 
 </div>
      <div class="navmain">
-      <div><h2 style="margin:0 0 6px;font-size:15px;font-weight:600">Как это работает</h2><p class="hint" style="font-size:12px;margin:0">Выдели фреймы одного или нескольких рядов, для каждого ряда плагин соберёт блок со ссылками на фреймы.</p></div>
-      <ul class="bul">
-       <li><span class="code">DescriptionCard</span> ставится с выключенным слотом списка — название ряда заполняешь сам.</li>
-       <li>В <span class="code">LinkCard</span> попадают ссылки на каждый фрейм с их названиями.</li>
-       <li>Над фреймом — кнопка-ссылка обратно к блоку ряда: иконка ArrowLeft слева, справа без иконки.</li>
-      </ul>
+      <div id="navEmpty">
+       <h2>Выдели фреймы рядов</h2>
+       <p class="hint">Плагин соберёт слева от каждого ряда блок со ссылками на фреймы и добавит над ними кнопки возврата. Расстояния на схеме берутся из настроек</p>
+       <div class="dg" id="navDg" role="img" aria-label="Схема расстояний: от блока навигации до фрейма, между фреймами и между рядами"></div>
+      </div>
       <div id="lyOut" aria-live="polite"></div>
-     <div id="fnMsg" class="meta"></div>
+      <div id="fnMsg" class="meta"></div>
      </div>
     </div>
-
-    <aside class="aside">
-     <div class="k">Как это ляжет на холст</div>
-     <div class="dg" id="navDg" role="img" aria-label="Схема расстояний A, B и C"></div>
-     <div class="lg">
-      <div><span style="width:10px;height:10px;border-radius:2px;background:color-mix(in srgb,var(--accent) 18%,var(--bg));border:1px solid color-mix(in srgb,var(--accent) 45%,transparent)"></span>Блок навигации — по одному на ряд</div>
-      <div><span style="width:12px;height:5px;border-radius:3px;background:color-mix(in srgb,var(--accent) 30%,var(--bg))"></span>Кнопка возврата над фреймом</div>
-      <div style="align-items:flex-start"><span class="L" style="width:14px;height:14px;line-height:14px;font-size:9px">C</span>От низа самого низкого фрейма до верха самого высокого в следующем ряду</div>
-     </div>
-    </aside>
    </div>
-   <footer class="pfoot">
-    <span class="grow"></span>
-    <button id="lyScan">Проверить расстояния</button>
-    <button id="lyFix" disabled>Выровнять всё</button>
-    <button id="fnDo" disabled>Создать / обновить</button>
-   </footer>
   </div>
 
   <!-- ===== Правописание ===== -->
@@ -663,7 +689,7 @@
     <div class="tdetail">
      <div class="tp" id="tp-replace">
       <div class="tb">
-       <div><h2>Замена компонентов</h2><p class="p">Имена — как в панели слоёв. Новый компонент: локальный по имени или <span class="code">key:КЛЮЧ</span> из библиотеки. Область — слои последней проверки или выделение.</p></div>
+       <div><h2>Замена компонентов</h2><p class="p">Имена — как в панели слоёв. Новый компонент: локальный по имени или <span class="code">key:КЛЮЧ</span> из библиотеки. Область — слои последней проверки или выделение</p></div>
        <div class="lrows" id="swapRows"></div>
        <div class="row" style="gap:10px">
         <button class="ghost sm" id="swapAdd">+ Добавить правило</button>
@@ -679,7 +705,7 @@
 
      <div class="tp" id="tp-multiply" hidden>
       <div class="tb">
-       <div><h2>Размножение фрейма по данным</h2><p class="p">Выдели шаблонный фрейм. Текстовые слои <span class="code">#title</span>, <span class="code">#price</span> получат значения колонок. CSV/TSV с шапкой или JSON-массив.</p></div>
+       <div><h2>Размножение фрейма по данным</h2><p class="p">Выдели шаблонный фрейм. Текстовые слои <span class="code">#title</span>, <span class="code">#price</span> получат значения колонок. CSV/TSV с шапкой или JSON-массив</p></div>
        <div><label class="lbl" for="mulData">Данные</label><textarea id="mulData" placeholder="title,price&#10;Кофе,120&#10;Чай,90"></textarea></div>
        <div id="mulCols" hidden><div class="k" style="font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--tx3);margin-bottom:8px">Колонки → слои</div><div class="row" id="mulColsList" style="gap:8px"></div></div>
        <div class="meta" id="mulOut"></div>
@@ -712,6 +738,8 @@ function h(tag, props, ...kids) {
   const el = document.createElement(tag);
   if (props) for (const k in props) {
     const v = props[k];
+    // aria-* с булевым значением должны получить строку "true" / "false": на них завязаны стили ([aria-pressed=true])
+    if (typeof v === 'boolean' && k.startsWith('aria-')) { el.setAttribute(k, String(v)); continue; }
     if (v === false || v == null) continue;
     if (k === 'class') el.className = v;
     else if (k === 'text') el.textContent = v;
@@ -746,7 +774,7 @@ function svgEl(size, ic) {
   return svg;
 }
 // Иконки: v — размер сетки, d — контур, r — поворот, e — evenodd, h — готовая цветная разметка (error, warn).
-const ICONS = {"error":{"v":20,"h":"<linearGradient id=\"@\" gradientUnits=\"userSpaceOnUse\" x1=\"-10\" x2=\"10\" y1=\"10\" y2=\"30\"><stop offset=\"0\" stop-color=\"#ff5263\"/><stop offset=\"1\" stop-color=\"#ff3347\"/></linearGradient><path d=\"m0 10c0-5.52285 4.47715-10 10-10 5.5228 0 10 4.47715 10 10 0 5.5228-4.4772 10-10 10-5.52285 0-10-4.4772-10-10z\" fill=\"url(#@)\"/><path d=\"m5.79289 5.79289c.39053-.39052 1.02369-.39052 1.41422 0l2.79289 2.79211 2.7929-2.79211c.3905-.39052 1.0237-.39052 1.4142 0 .3905.39053.3905 1.02369 0 1.41422l-2.7921 2.79289 2.7921 2.7929c.3605.3605.3882.9277.0832 1.32l-.0832.0942c-.3905.3905-1.0237.3905-1.4142 0l-2.7929-2.7921-2.79289 2.7921c-.39053.3905-1.02369.3905-1.41422 0-.39052-.3905-.39052-1.0237 0-1.4142l2.79211-2.7929-2.79211-2.79289c-.36048-.36049-.38821-.92772-.08319-1.32001z\" fill=\"#fff\"/>"},"warn":{"v":20,"h":"<rect width=\"20\" height=\"20\" fill=\"url(#@)\" rx=\"10\"/><rect width=\"2\" height=\"7.5\" x=\"9\" y=\"4\" fill=\"#fff\" rx=\"1\"/><circle cx=\"10\" cy=\"15\" r=\"1\" fill=\"#fff\"/><defs><linearGradient id=\"@\" x1=\"-10\" x2=\"10\" y1=\"10\" y2=\"30\" gradientUnits=\"userSpaceOnUse\"><stop stop-color=\"#FFB73D\"/><stop offset=\"1\" stop-color=\"#FFA000\"/></linearGradient></defs>"},"info":{"v":20,"d":"M10 9.25a.75.75 0 01.75.75v4a.75.75 0 01-1.5 0v-4a.75.75 0 01.75-.75z M11 7a1 1 0 11-2 0 1 1 0 012 0z M3.99 3.99A8.476 8.476 0 0110 1.5c2.347 0 4.473.952 6.01 2.49A8.476 8.476 0 0118.5 10a8.476 8.476 0 01-2.49 6.01A8.476 8.476 0 0110 18.5a8.476 8.476 0 01-6.01-2.49A8.476 8.476 0 011.5 10c0-2.347.952-4.473 2.49-6.01zM10 3a6.976 6.976 0 00-4.95 2.05A6.976 6.976 0 003 10c0 1.933.783 3.682 2.05 4.95A6.976 6.976 0 0010 17a6.975 6.975 0 004.95-2.05A6.975 6.975 0 0017 10a6.976 6.976 0 00-2.05-4.95A6.976 6.976 0 0010 3z","e":1},"up":{"v":20,"d":"M9.52813 6.41707c.27516-.22276.66867-.22276.94377 0l5.25 4.25003c.322.2606.3717.7329.1111 1.0548-.2607.3219-.7329.3717-1.0549.111l-4.7781-3.86795-4.77808 3.86795c-.32194.2607-.79421.2109-1.05483-.111s-.21091-.7942.11104-1.0548z"},"down":{"v":20,"d":"M9.52813 6.41707c.27516-.22276.66867-.22276.94377 0l5.25 4.25003c.322.2606.3717.7329.1111 1.0548-.2607.3219-.7329.3717-1.0549.111l-4.7781-3.86795-4.77808 3.86795c-.32194.2607-.79421.2109-1.05483-.111s-.21091-.7942.11104-1.0548z","r":180},"right":{"v":20,"d":"M7.47 4.217a.75.75 0 0 0 0 1.06L12.185 10 7.469 14.72a.75.75 0 1 0 1.062 1.06l5.245-5.25a.75.75 0 0 0 0-1.061L8.531 4.218a.75.75 0 0 0-1.061-.001z","e":1},"left":{"v":20,"d":"M12.526 4.217a.75.75 0 0 1 0 1.06L7.81 10l4.716 4.721a.75.75 0 1 1-1.061 1.06l-5.246-5.25a.75.75 0 0 1 0-1.061l5.246-5.252a.75.75 0 0 1 1.06-.001z","e":1},"bolt":{"v":20,"d":"M12.7534 4.0438-.8128 3.3004 1.9233.3505c.9542.161 1.815.616 2.0687 1.5253.2564.9189-.2493 1.8353-.8203 2.5211l-5.0806 5.7449c-.3284.3538-.662.641-.9917.8167-.3037.1619-.7968.3245-1.2684.0516-.461-.2666-.5783-.7655-.6027-1.1082-.027-.3761.0343-.8192.1559-1.3012 0-.0003 0 .0003 0 0L8.1607 12.6l-1.8115-.3195c-.9194-.1576-1.8395-.5897-2.2032-1.4542-.3845-.914.0135-1.895.8039-2.758.4633-.506.9508-.9901 1.4147-1.496.8375-.9131 2.0631-2.265 3.6778-4.0567.3107-.3499.6347-.6365.962-.8139.3059-.1657.787-.322 1.255-.0704.4667.251.6053.739.6387 1.0943.0357.381-.0219.8295-.1447 1.3182Zm-1.3737-.7577a3.9507 3.9507 0 0 0-.2172.2272c-1.2157 1.3706-2.454 2.7227-3.6924 4.073-.298.3249-.7723.8263-1.4196 1.5011-.6283.6886-.5679 1.0478-.5219 1.1572.1567.3723.7338.4992 1.0776.558l2.332.4115c.5623.0992.9497.6615.806 1.2364l-.9648 3.8604a4.7148 4.7148 0 0 0-.0826.3914 4.421 4.421 0 0 0 .2295-.2304l5.0473-5.7074c.5301-.6398.5502-1.0125.5142-1.1414-.0213-.0763-.1474-.3277-.8773-.45l-2.4507-.4465c-.5639-.1028-.9382-.6752-.8011-1.232l.9399-3.8165a4.2863 4.2863 0 0 0 .0811-.392Z","e":1},"target":{"v":20,"d":"M10.7545 1.75a.7503.7503 0 1 0-1.5006 0v1.034c-3.4097.3485-6.1199 3.0598-6.4667 6.47H1.75a.7503.7503 0 1 0 0 1.5006h1.0388c.3536 3.4028 3.0607 6.1063 6.4652 6.4542v1.037a.7503.7503 0 1 0 1.5006 0v-1.0379c3.4004-.3516 6.1032-3.0534 6.4565-6.4534H18.25a.7503.7503 0 1 0 0-1.5006h-1.0373c-.3466-3.4073-3.0525-6.1168-6.4582-6.469v-1.035ZM5.25 10.7546h-.9502c.339 2.5731 2.3794 4.61 4.9542 4.9435v-.9523a.7503.7503 0 1 1 1.5006 0v.9512c2.5707-.337 4.6069-2.3722 4.9455-4.9425H14.75a.7503.7503 0 1 1 0-1.5006h.9521c-.3323-2.5776-2.3716-4.6204-4.9476-4.958v.954a.7503.7503 0 1 1-1.5006 0v-.9552c-2.58.3343-4.6235 2.3788-4.9561 4.9593H5.25a.7503.7503 0 1 1 0 1.5006ZM10 11.5c.8284 0 1.4999-.6716 1.4999-1.5s-.6715-1.5-1.5-1.5c-.8284 0-1.5.6716-1.5 1.5s.6716 1.5 1.5 1.5Z","e":1},"arrow":{"v":20,"d":"M11.2931 15.7672a.7499.7499 0 0 1-1.0603.0259.75.75 0 0 1-.0259-1.0603L14 10.75H4.25a.75.75 0 0 1 0-1.5H14l-3.7931-3.9828a.75.75 0 0 1 .0259-1.0603.75.75 0 0 1 1.0603.0259l5 5.25a.7499.7499 0 0 1 0 1.0344l-5 5.25Z"},"check":{"v":16,"d":"M13.7428 3.7561C14.0857 4.09757 14.0857 4.65121 13.7428 4.99268L6.42575 12.2439C6.08285 12.5854 5.5269 12.5854 5.184 12.2439L2.25717 9.36462C1.91428 9.02315 1.91428 8.46952 2.25717 8.12805C2.60007 7.78658 3.15602 7.78658 3.49892 8.12805L5.80488 10.389L12.5011 3.7561C12.844 3.41463 13.3999 3.41463 13.7428 3.7561Z"},"x":{"v":20,"d":"M4.71967 4.71967c.29289-.29289.76777-.29289 1.06066 0l4.21967 4.21967 4.2197-4.21967c.2929-.29289.7677-.29289 1.0606 0s.2929.76777 0 1.06066l-4.2196 4.21967 4.2196 4.2197c.2929.2929.2929.7677 0 1.0606s-.7677.2929-1.0606 0l-4.2197-4.2196-4.21967 4.2196c-.29289.2929-.76777.2929-1.06066 0s-.29289-.7677 0-1.0606l4.21967-4.2197-4.21967-4.21967c-.29289-.29289-.29289-.76777 0-1.06066z","e":1},"tabCheck":{"v":20,"d":"M15.53 5.22a.75.75 0 0 1 0 1.06l-9.5 9.5a.75.75 0 0 1-1.06 0l-4.5-4.5a.75.75 0 1 1 1.06-1.06l3.97 3.97 8.97-8.97a.75.75 0 0 1 1.06 0Zm4 0a.75.75 0 0 1 0 1.06l-9.5 9.5a.75.75 0 1 1-1.06-1.06l9.5-9.5a.75.75 0 0 1 1.06 0Z","e":1},"tabNav":{"v":20,"d":"M13.6799 7.33202c.2085-.62541-.3865-1.2204-1.0119-1.01193l-4.38146 1.46047c-.23888.07963-.42633.26708-.50596.50596l-1.46047 4.38138c-.20847.6254.38651 1.2204 1.01193 1.012l4.38146-1.4605c.2388-.0796.4263-.2671.5059-.506zm-4.58697 1.76088 2.72117-.90707-.907 2.72117-2.72125.9071z M10 1.5c-4.69442 0-8.5 3.80558-8.5 8.5 0 4.6944 3.80558 8.5 8.5 8.5 4.6944 0 8.5-3.8056 8.5-8.5 0-4.69442-3.8056-8.5-8.5-8.5zm-7 8.5c0-3.86599 3.13401-7 7-7 3.866 0 7 3.13401 7 7 0 3.866-3.134 7-7 7-3.86599 0-7-3.134-7-7z","e":1},"tabSpell":{"v":20,"d":"M9.794 15.478c.522 0 .898-.364.898-.885 0-.17-.035-.342-.119-.587L7.651 5.533C7.4 4.813 6.997 4.5 6.335 4.5c-.654 0-1.057.327-1.3 1.04l-2.917 8.466c-.083.23-.118.439-.118.587 0 .543.355.885.905.885.466 0 .73-.246.897-.825l.661-2.037h3.751l.662 2.052c.16.572.431.81.918.81Zm-2.048-4.466H4.918l1.383-4.49h.048l1.397 4.49Zm9.412 4.488c.487 0 .842-.335.842-.93V9.638c0-1.583-1.19-2.616-3.02-2.616-1.413 0-2.486.58-2.862 1.494a1.229 1.229 0 0 0-.118.506c0 .445.306.743.73.743.293 0 .523-.12.704-.372.431-.676.801-.921 1.476-.921.856 0 1.378.475 1.378 1.3v.853l-1.955.12c-1.796.118-2.805.958-2.805 2.355 0 1.42 1.037 2.379 2.464 2.379.953 0 1.878-.528 2.303-1.383h.035v.55c.028.55.355.855.828.855Zm-2.638-1.42c-.751 0-1.26-.408-1.26-1.055 0-.624.481-1.026 1.316-1.085l1.712-.112v.602c0 .952-.793 1.65-1.768 1.65Z"},"tabTools":{"v":20,"d":"M2.88 16.766a2.997 2.997 0 0 1 0-4.24l2.138-2.137a.634.634 0 0 0 .161-.595A6.747 6.747 0 0 1 11.75 1.5c.829 0 1.622.149 2.355.422.38.14.457.623.17.91l-2.6 2.612a.6.6 0 0 0-.174.423V7.9a.6.6 0 0 0 .6.6h2.029a.6.6 0 0 0 .423-.175l2.616-2.603c.287-.286.769-.21.91.17a6.747 6.747 0 0 1-7.858 8.921.633.633 0 0 0-.592.162l-2.15 2.145a3.003 3.003 0 0 1-4.244 0l-.355-.355Zm8.87-3.278a5.247 5.247 0 0 0 5.245-5.478L15.61 9.39a2.1 2.1 0 0 1-1.48.61H12.1A2.1 2.1 0 0 1 10 7.9V5.867a2.1 2.1 0 0 1 .612-1.481l1.374-1.38A5.247 5.247 0 0 0 6.64 9.45a2.133 2.133 0 0 1-.56 2l-2.14 2.136a1.497 1.497 0 0 0 0 2.118l.356.355a1.503 1.503 0 0 0 2.124 0l2.149-2.146a2.133 2.133 0 0 1 1.99-.562c.382.089.78.136 1.192.136Z","e":1},"refresh":{"v":20,"d":"M8.356 6.71a.75.75 0 0 0 1.061 1.06l2.139-2.14.01-.01c.052-.052.119-.118.173-.182a1.054 1.054 0 0 0 .208-1.02 1.068 1.068 0 0 0-.208-.362 3.077 3.077 0 0 0-.172-.182l-.011-.011-2.139-2.14a.75.75 0 1 0-1.06 1.061L9.58 4.01a6.997 6.997 0 0 0-6.125 4.504 7.007 7.007 0 0 0 2.876 8.452 6.997 6.997 0 0 0 8.837-1.243 7.005 7.005 0 0 0 .548-8.764.75.75 0 1 0-1.225.866 5.505 5.505 0 0 1-3.727 8.625 5.498 5.498 0 0 1-5.972-3.676A5.505 5.505 0 0 1 9.55 5.516L8.356 6.709Z","e":1},"list":{"v":20,"d":"M6.667 4.917a.75.75 0 0 1 .75-.75h9.333a.75.75 0 0 1 0 1.5H7.417a.75.75 0 0 1-.75-.75Zm0 5.083a.75.75 0 0 1 .75-.75h9.333a.75.75 0 0 1 0 1.5H7.417a.75.75 0 0 1-.75-.75Zm0 5.083a.75.75 0 0 1 .75-.75h9.333a.75.75 0 0 1 0 1.5H7.417a.75.75 0 0 1-.75-.75ZM5 10a1.25 1.25 0 1 1-2.5 0A1.25 1.25 0 0 1 5 10Zm0 5a1.25 1.25 0 1 1-2.5 0A1.25 1.25 0 0 1 5 15ZM5 5a1.25 1.25 0 1 1-2.5 0A1.25 1.25 0 0 1 5 5Z"},"link":{"v":20,"d":"M12.5165 4.17572c.9113-.90096 2.3923-.90096 3.3036 0 .9065.89627.9065 2.34583 0 3.2421l-.6867.67889c-.2945.29122-.2973.76609-.006 1.06064.2912.29456.7661.29727 1.0606.00605l.6867-.67889c1.5004-1.48341 1.5004-3.89207 0-5.37547-1.4957-1.47872-3.9171-1.47872-5.4128 0l-3.33661 3.29883c-1.5004 1.48341-1.5004 3.89203 0 5.37543.29456.2913.76942.2886 1.06065-.006.29122-.2946.28851-.7694-.00605-1.0606-.90653-.89631-.90653-2.34587 0-3.24214z M7.48346 15.8243c-.91129.9009-2.39227.9009-3.30356 0-.90653-.8963-.90653-2.3459 0-3.2421l.68667-.6789c.29456-.2912.29726-.7661.00604-1.0607-.29122-.2945-.76608-.2972-1.06064-.006l-.68667.6789c-1.5004 1.4834-1.5004 3.8921 0 5.3755 1.49566 1.4787 3.9171 1.4787 5.41276 0l3.33664-3.2989c1.5004-1.4834 1.5004-3.89204 0-5.37544-.2946-.29122-.7694-.28852-1.0607.00604-.2912.29456-.2885.76942.0061 1.06064.9065.89626.9065 2.34586 0 3.24206z"},"back":{"v":20,"d":"M8.7069 4.2328a.75.75 0 1 1 1.0862 1.0344L6 9.25h9.75a.75.75 0 0 1 0 1.5H6l3.7931 3.9828a.7499.7499 0 0 1-.0259 1.0603.75.75 0 0 1-1.0603-.0259l-5-5.25a.75.75 0 0 1 0-1.0344l5-5.25Z"},"swap":{"v":20,"d":"M5.75 3.5a.75.75 0 0 0 0-1.5h-1.5A2.25 2.25 0 0 0 2 4.25v1.5a.75.75 0 0 0 1.5 0v-1.5a.75.75 0 0 1 .75-.75h1.5ZM16.5 5.75a.75.75 0 0 0 1.5 0v-1.5A2.25 2.25 0 0 0 15.75 2h-1.5a.75.75 0 0 0 0 1.5h1.5a.75.75 0 0 1 .75.75v1.5Zm-3 11.5a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 0 .75-.75v-1.5a.75.75 0 0 1 1.5 0v1.5A2.25 2.25 0 0 1 15.75 18h-1.5a.75.75 0 0 1-.75-.75Zm-10-3a.75.75 0 0 0-1.5 0v1.5A2.25 2.25 0 0 0 4.25 18h1.5a.75.75 0 0 0 0-1.5h-1.5a.75.75 0 0 1-.75-.75v-1.5Zm1.97-6.78a.75.75 0 0 1 1.06 0l2 2a.75.75 0 0 1 0 1.06l-2 2a.75.75 0 0 1-1.06-1.06l.72-.72H3.5a.75.75 0 0 1 0-1.5h2.69l-.72-.72a.75.75 0 0 1 0-1.06Zm9.06 5.06a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 0 1 0-1.06l2-2a.75.75 0 1 1 1.06 1.06l-.72.72h2.69a.75.75 0 0 1 0 1.5h-2.69l.72.72a.75.75 0 0 1 0 1.06Z","e":1},"copy":{"v":20,"d":"M9.2 3c-1.285 0-2.158.001-2.833.056-.658.054-.994.151-1.229.271a3 3 0 0 0-1.311 1.311c-.12.235-.217.57-.27 1.229C3.5 6.542 3.5 7.415 3.5 8.7v2.6c0 .585.001.933.022 1.191.01.11.02.176.028.212v.097c0 .761 0 1.264.068 1.642a1.723 1.723 0 0 1-.526-.16 2 2 0 0 1-.874-.874C2 12.98 2 12.42 2 11.3V8.7c0-2.52 0-3.78.49-4.743A4.5 4.5 0 0 1 4.457 1.99C5.42 1.5 6.68 1.5 9.2 1.5h2c1.12 0 1.68 0 2.108.218a2 2 0 0 1 .874.874c.07.137.117.288.15.466C13.96 3 13.472 3 12.75 3H9.2Z M5.1 7.7c0-1.12 0-1.68.218-2.108a2 2 0 0 1 .874-.874C6.62 4.5 7.18 4.5 8.3 4.5h6c1.12 0 1.68 0 2.108.218a2 2 0 0 1 .874.874c.218.428.218.988.218 2.108v7.6c0 1.12 0 1.68-.218 2.108a2 2 0 0 1-.874.874c-.428.218-.988.218-2.108.218h-6c-1.12 0-1.68 0-2.108-.218a2 2 0 0 1-.874-.874C5.1 16.98 5.1 16.42 5.1 15.3V7.7ZM8.3 6h6c.585 0 .933.001 1.191.022.158.013.224.03.242.036a.5.5 0 0 1 .21.209c.005.018.022.084.035.242.02.258.022.606.022 1.191v7.6c0 .585-.001.933-.022 1.191-.013.158-.03.224-.036.242a.5.5 0 0 1-.209.21 1.253 1.253 0 0 1-.242.035c-.258.02-.606.022-1.191.022h-6c-.585 0-.933-.001-1.191-.022a1.253 1.253 0 0 1-.242-.036.5.5 0 0 1-.21-.209 1.255 1.255 0 0 1-.035-.242c-.02-.258-.022-.606-.022-1.191V7.7c0-.585.001-.933.022-1.191.013-.158.03-.224.036-.242a.5.5 0 0 1 .209-.21c.018-.005.084-.022.242-.035C7.367 6.002 7.715 6 8.3 6Zm7.438.06-.003-.002.003.001Zm.203.202v.003-.003Zm0 10.476v-.003a.014.014 0 0 1 0 .003Zm-.203.203h-.003.003Zm-8.876 0h.003-.003Zm-.203-.203v-.003.003Zm0-10.476v.003-.003Zm.203-.203h.003a.05.05 0 0 0-.003 0Z","e":1},"dockL":{"v":16,"d":"M1.5 2.5h13v11h-13z M2.5 3.5v9h11v-9z M3.5 4.5h3v7h-3z","e":1},"dockR":{"v":16,"d":"M1.5 2.5h13v11h-13z M2.5 3.5v9h11v-9z M9.5 4.5h3v7h-3z","e":1},"dockB":{"v":16,"d":"M1.5 2.5h13v11h-13z M2.5 3.5v9h11v-9z M3.5 8.5h9v3h-9z","e":1},"expand":{"v":20,"d":"M9.52813 6.41707c.27516-.22276.66867-.22276.94377 0l5.25 4.25003c.322.2606.3717.7329.1111 1.0548-.2607.3219-.7329.3717-1.0549.111l-4.7781-3.86795-4.77808 3.86795c-.32194.2607-.79421.2109-1.05483-.111s-.21091-.7942.11104-1.0548z"}};
+const ICONS = {"error":{"v":20,"h":"<linearGradient id=\"@\" gradientUnits=\"userSpaceOnUse\" x1=\"-10\" x2=\"10\" y1=\"10\" y2=\"30\"><stop offset=\"0\" stop-color=\"#ff5263\"/><stop offset=\"1\" stop-color=\"#ff3347\"/></linearGradient><path d=\"m0 10c0-5.52285 4.47715-10 10-10 5.5228 0 10 4.47715 10 10 0 5.5228-4.4772 10-10 10-5.52285 0-10-4.4772-10-10z\" fill=\"url(#@)\"/><path d=\"m5.79289 5.79289c.39053-.39052 1.02369-.39052 1.41422 0l2.79289 2.79211 2.7929-2.79211c.3905-.39052 1.0237-.39052 1.4142 0 .3905.39053.3905 1.02369 0 1.41422l-2.7921 2.79289 2.7921 2.7929c.3605.3605.3882.9277.0832 1.32l-.0832.0942c-.3905.3905-1.0237.3905-1.4142 0l-2.7929-2.7921-2.79289 2.7921c-.39053.3905-1.02369.3905-1.41422 0-.39052-.3905-.39052-1.0237 0-1.4142l2.79211-2.7929-2.79211-2.79289c-.36048-.36049-.38821-.92772-.08319-1.32001z\" fill=\"#fff\"/>"},"warn":{"v":20,"h":"<rect width=\"20\" height=\"20\" fill=\"url(#@)\" rx=\"10\"/><rect width=\"2\" height=\"7.5\" x=\"9\" y=\"4\" fill=\"#fff\" rx=\"1\"/><circle cx=\"10\" cy=\"15\" r=\"1\" fill=\"#fff\"/><defs><linearGradient id=\"@\" x1=\"-10\" x2=\"10\" y1=\"10\" y2=\"30\" gradientUnits=\"userSpaceOnUse\"><stop stop-color=\"#FFB73D\"/><stop offset=\"1\" stop-color=\"#FFA000\"/></linearGradient></defs>"},"info":{"v":20,"d":"M10 9.25a.75.75 0 01.75.75v4a.75.75 0 01-1.5 0v-4a.75.75 0 01.75-.75z M11 7a1 1 0 11-2 0 1 1 0 012 0z M3.99 3.99A8.476 8.476 0 0110 1.5c2.347 0 4.473.952 6.01 2.49A8.476 8.476 0 0118.5 10a8.476 8.476 0 01-2.49 6.01A8.476 8.476 0 0110 18.5a8.476 8.476 0 01-6.01-2.49A8.476 8.476 0 011.5 10c0-2.347.952-4.473 2.49-6.01zM10 3a6.976 6.976 0 00-4.95 2.05A6.976 6.976 0 003 10c0 1.933.783 3.682 2.05 4.95A6.976 6.976 0 0010 17a6.975 6.975 0 004.95-2.05A6.975 6.975 0 0017 10a6.976 6.976 0 00-2.05-4.95A6.976 6.976 0 0010 3z","e":1},"up":{"v":20,"d":"M9.52813 6.41707c.27516-.22276.66867-.22276.94377 0l5.25 4.25003c.322.2606.3717.7329.1111 1.0548-.2607.3219-.7329.3717-1.0549.111l-4.7781-3.86795-4.77808 3.86795c-.32194.2607-.79421.2109-1.05483-.111s-.21091-.7942.11104-1.0548z"},"down":{"v":20,"d":"M9.52813 6.41707c.27516-.22276.66867-.22276.94377 0l5.25 4.25003c.322.2606.3717.7329.1111 1.0548-.2607.3219-.7329.3717-1.0549.111l-4.7781-3.86795-4.77808 3.86795c-.32194.2607-.79421.2109-1.05483-.111s-.21091-.7942.11104-1.0548z","r":180},"right":{"v":20,"d":"M7.47 4.217a.75.75 0 0 0 0 1.06L12.185 10 7.469 14.72a.75.75 0 1 0 1.062 1.06l5.245-5.25a.75.75 0 0 0 0-1.061L8.531 4.218a.75.75 0 0 0-1.061-.001z","e":1},"left":{"v":20,"d":"M12.526 4.217a.75.75 0 0 1 0 1.06L7.81 10l4.716 4.721a.75.75 0 1 1-1.061 1.06l-5.246-5.25a.75.75 0 0 1 0-1.061l5.246-5.252a.75.75 0 0 1 1.06-.001z","e":1},"bolt":{"v":20,"d":"M12.7534 4.0438-.8128 3.3004 1.9233.3505c.9542.161 1.815.616 2.0687 1.5253.2564.9189-.2493 1.8353-.8203 2.5211l-5.0806 5.7449c-.3284.3538-.662.641-.9917.8167-.3037.1619-.7968.3245-1.2684.0516-.461-.2666-.5783-.7655-.6027-1.1082-.027-.3761.0343-.8192.1559-1.3012 0-.0003 0 .0003 0 0L8.1607 12.6l-1.8115-.3195c-.9194-.1576-1.8395-.5897-2.2032-1.4542-.3845-.914.0135-1.895.8039-2.758.4633-.506.9508-.9901 1.4147-1.496.8375-.9131 2.0631-2.265 3.6778-4.0567.3107-.3499.6347-.6365.962-.8139.3059-.1657.787-.322 1.255-.0704.4667.251.6053.739.6387 1.0943.0357.381-.0219.8295-.1447 1.3182Zm-1.3737-.7577a3.9507 3.9507 0 0 0-.2172.2272c-1.2157 1.3706-2.454 2.7227-3.6924 4.073-.298.3249-.7723.8263-1.4196 1.5011-.6283.6886-.5679 1.0478-.5219 1.1572.1567.3723.7338.4992 1.0776.558l2.332.4115c.5623.0992.9497.6615.806 1.2364l-.9648 3.8604a4.7148 4.7148 0 0 0-.0826.3914 4.421 4.421 0 0 0 .2295-.2304l5.0473-5.7074c.5301-.6398.5502-1.0125.5142-1.1414-.0213-.0763-.1474-.3277-.8773-.45l-2.4507-.4465c-.5639-.1028-.9382-.6752-.8011-1.232l.9399-3.8165a4.2863 4.2863 0 0 0 .0811-.392Z","e":1},"target":{"v":20,"d":"M10.7545 1.75a.7503.7503 0 1 0-1.5006 0v1.034c-3.4097.3485-6.1199 3.0598-6.4667 6.47H1.75a.7503.7503 0 1 0 0 1.5006h1.0388c.3536 3.4028 3.0607 6.1063 6.4652 6.4542v1.037a.7503.7503 0 1 0 1.5006 0v-1.0379c3.4004-.3516 6.1032-3.0534 6.4565-6.4534H18.25a.7503.7503 0 1 0 0-1.5006h-1.0373c-.3466-3.4073-3.0525-6.1168-6.4582-6.469v-1.035ZM5.25 10.7546h-.9502c.339 2.5731 2.3794 4.61 4.9542 4.9435v-.9523a.7503.7503 0 1 1 1.5006 0v.9512c2.5707-.337 4.6069-2.3722 4.9455-4.9425H14.75a.7503.7503 0 1 1 0-1.5006h.9521c-.3323-2.5776-2.3716-4.6204-4.9476-4.958v.954a.7503.7503 0 1 1-1.5006 0v-.9552c-2.58.3343-4.6235 2.3788-4.9561 4.9593H5.25a.7503.7503 0 1 1 0 1.5006ZM10 11.5c.8284 0 1.4999-.6716 1.4999-1.5s-.6715-1.5-1.5-1.5c-.8284 0-1.5.6716-1.5 1.5s.6716 1.5 1.5 1.5Z","e":1},"arrow":{"v":20,"d":"M11.2931 15.7672a.7499.7499 0 0 1-1.0603.0259.75.75 0 0 1-.0259-1.0603L14 10.75H4.25a.75.75 0 0 1 0-1.5H14l-3.7931-3.9828a.75.75 0 0 1 .0259-1.0603.75.75 0 0 1 1.0603.0259l5 5.25a.7499.7499 0 0 1 0 1.0344l-5 5.25Z"},"check":{"v":16,"d":"M13.7428 3.7561C14.0857 4.09757 14.0857 4.65121 13.7428 4.99268L6.42575 12.2439C6.08285 12.5854 5.5269 12.5854 5.184 12.2439L2.25717 9.36462C1.91428 9.02315 1.91428 8.46952 2.25717 8.12805C2.60007 7.78658 3.15602 7.78658 3.49892 8.12805L5.80488 10.389L12.5011 3.7561C12.844 3.41463 13.3999 3.41463 13.7428 3.7561Z"},"x":{"v":20,"d":"M4.71967 4.71967c.29289-.29289.76777-.29289 1.06066 0l4.21967 4.21967 4.2197-4.21967c.2929-.29289.7677-.29289 1.0606 0s.2929.76777 0 1.06066l-4.2196 4.21967 4.2196 4.2197c.2929.2929.2929.7677 0 1.0606s-.7677.2929-1.0606 0l-4.2197-4.2196-4.21967 4.2196c-.29289.2929-.76777.2929-1.06066 0s-.29289-.7677 0-1.0606l4.21967-4.2197-4.21967-4.21967c-.29289-.29289-.29289-.76777 0-1.06066z","e":1},"tabCheck":{"v":20,"d":"M15.53 5.22a.75.75 0 0 1 0 1.06l-9.5 9.5a.75.75 0 0 1-1.06 0l-4.5-4.5a.75.75 0 1 1 1.06-1.06l3.97 3.97 8.97-8.97a.75.75 0 0 1 1.06 0Zm4 0a.75.75 0 0 1 0 1.06l-9.5 9.5a.75.75 0 1 1-1.06-1.06l9.5-9.5a.75.75 0 0 1 1.06 0Z","e":1},"tabNav":{"v":20,"d":"M13.6799 7.33202c.2085-.62541-.3865-1.2204-1.0119-1.01193l-4.38146 1.46047c-.23888.07963-.42633.26708-.50596.50596l-1.46047 4.38138c-.20847.6254.38651 1.2204 1.01193 1.012l4.38146-1.4605c.2388-.0796.4263-.2671.5059-.506zm-4.58697 1.76088 2.72117-.90707-.907 2.72117-2.72125.9071z M10 1.5c-4.69442 0-8.5 3.80558-8.5 8.5 0 4.6944 3.80558 8.5 8.5 8.5 4.6944 0 8.5-3.8056 8.5-8.5 0-4.69442-3.8056-8.5-8.5-8.5zm-7 8.5c0-3.86599 3.13401-7 7-7 3.866 0 7 3.13401 7 7 0 3.866-3.134 7-7 7-3.86599 0-7-3.134-7-7z","e":1},"tabSpell":{"v":20,"d":"M9.794 15.478c.522 0 .898-.364.898-.885 0-.17-.035-.342-.119-.587L7.651 5.533C7.4 4.813 6.997 4.5 6.335 4.5c-.654 0-1.057.327-1.3 1.04l-2.917 8.466c-.083.23-.118.439-.118.587 0 .543.355.885.905.885.466 0 .73-.246.897-.825l.661-2.037h3.751l.662 2.052c.16.572.431.81.918.81Zm-2.048-4.466H4.918l1.383-4.49h.048l1.397 4.49Zm9.412 4.488c.487 0 .842-.335.842-.93V9.638c0-1.583-1.19-2.616-3.02-2.616-1.413 0-2.486.58-2.862 1.494a1.229 1.229 0 0 0-.118.506c0 .445.306.743.73.743.293 0 .523-.12.704-.372.431-.676.801-.921 1.476-.921.856 0 1.378.475 1.378 1.3v.853l-1.955.12c-1.796.118-2.805.958-2.805 2.355 0 1.42 1.037 2.379 2.464 2.379.953 0 1.878-.528 2.303-1.383h.035v.55c.028.55.355.855.828.855Zm-2.638-1.42c-.751 0-1.26-.408-1.26-1.055 0-.624.481-1.026 1.316-1.085l1.712-.112v.602c0 .952-.793 1.65-1.768 1.65Z"},"tabTools":{"v":20,"h":"<path d=\"M11.57 3.69 L11.44 1.83 L8.56 1.83 L8.43 3.69 L6.65 4.43 L5.24 3.20 L3.20 5.24 L4.43 6.65 L3.69 8.43 L1.83 8.56 L1.83 11.44 L3.69 11.57 L4.43 13.35 L3.20 14.76 L5.24 16.80 L6.65 15.57 L8.43 16.31 L8.56 18.17 L11.44 18.17 L11.57 16.31 L13.35 15.57 L14.76 16.80 L16.80 14.76 L15.57 13.35 L16.31 11.57 L18.17 11.44 L18.17 8.56 L16.31 8.43 L15.57 6.65 L16.80 5.24 L14.76 3.20 L13.35 4.43 Z\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linejoin=\"round\" fill=\"none\"/><circle cx=\"10\" cy=\"10\" r=\"2.6\" stroke=\"currentColor\" stroke-width=\"1.5\" fill=\"none\"/>"},"refresh":{"v":20,"d":"M8.356 6.71a.75.75 0 0 0 1.061 1.06l2.139-2.14.01-.01c.052-.052.119-.118.173-.182a1.054 1.054 0 0 0 .208-1.02 1.068 1.068 0 0 0-.208-.362 3.077 3.077 0 0 0-.172-.182l-.011-.011-2.139-2.14a.75.75 0 1 0-1.06 1.061L9.58 4.01a6.997 6.997 0 0 0-6.125 4.504 7.007 7.007 0 0 0 2.876 8.452 6.997 6.997 0 0 0 8.837-1.243 7.005 7.005 0 0 0 .548-8.764.75.75 0 1 0-1.225.866 5.505 5.505 0 0 1-3.727 8.625 5.498 5.498 0 0 1-5.972-3.676A5.505 5.505 0 0 1 9.55 5.516L8.356 6.709Z","e":1},"list":{"v":20,"d":"M6.667 4.917a.75.75 0 0 1 .75-.75h9.333a.75.75 0 0 1 0 1.5H7.417a.75.75 0 0 1-.75-.75Zm0 5.083a.75.75 0 0 1 .75-.75h9.333a.75.75 0 0 1 0 1.5H7.417a.75.75 0 0 1-.75-.75Zm0 5.083a.75.75 0 0 1 .75-.75h9.333a.75.75 0 0 1 0 1.5H7.417a.75.75 0 0 1-.75-.75ZM5 10a1.25 1.25 0 1 1-2.5 0A1.25 1.25 0 0 1 5 10Zm0 5a1.25 1.25 0 1 1-2.5 0A1.25 1.25 0 0 1 5 15ZM5 5a1.25 1.25 0 1 1-2.5 0A1.25 1.25 0 0 1 5 5Z"},"link":{"v":20,"d":"M12.5165 4.17572c.9113-.90096 2.3923-.90096 3.3036 0 .9065.89627.9065 2.34583 0 3.2421l-.6867.67889c-.2945.29122-.2973.76609-.006 1.06064.2912.29456.7661.29727 1.0606.00605l.6867-.67889c1.5004-1.48341 1.5004-3.89207 0-5.37547-1.4957-1.47872-3.9171-1.47872-5.4128 0l-3.33661 3.29883c-1.5004 1.48341-1.5004 3.89203 0 5.37543.29456.2913.76942.2886 1.06065-.006.29122-.2946.28851-.7694-.00605-1.0606-.90653-.89631-.90653-2.34587 0-3.24214z M7.48346 15.8243c-.91129.9009-2.39227.9009-3.30356 0-.90653-.8963-.90653-2.3459 0-3.2421l.68667-.6789c.29456-.2912.29726-.7661.00604-1.0607-.29122-.2945-.76608-.2972-1.06064-.006l-.68667.6789c-1.5004 1.4834-1.5004 3.8921 0 5.3755 1.49566 1.4787 3.9171 1.4787 5.41276 0l3.33664-3.2989c1.5004-1.4834 1.5004-3.89204 0-5.37544-.2946-.29122-.7694-.28852-1.0607.00604-.2912.29456-.2885.76942.0061 1.06064.9065.89626.9065 2.34586 0 3.24206z"},"back":{"v":20,"d":"M8.7069 4.2328a.75.75 0 1 1 1.0862 1.0344L6 9.25h9.75a.75.75 0 0 1 0 1.5H6l3.7931 3.9828a.7499.7499 0 0 1-.0259 1.0603.75.75 0 0 1-1.0603-.0259l-5-5.25a.75.75 0 0 1 0-1.0344l5-5.25Z"},"swap":{"v":20,"d":"M5.75 3.5a.75.75 0 0 0 0-1.5h-1.5A2.25 2.25 0 0 0 2 4.25v1.5a.75.75 0 0 0 1.5 0v-1.5a.75.75 0 0 1 .75-.75h1.5ZM16.5 5.75a.75.75 0 0 0 1.5 0v-1.5A2.25 2.25 0 0 0 15.75 2h-1.5a.75.75 0 0 0 0 1.5h1.5a.75.75 0 0 1 .75.75v1.5Zm-3 11.5a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 0 .75-.75v-1.5a.75.75 0 0 1 1.5 0v1.5A2.25 2.25 0 0 1 15.75 18h-1.5a.75.75 0 0 1-.75-.75Zm-10-3a.75.75 0 0 0-1.5 0v1.5A2.25 2.25 0 0 0 4.25 18h1.5a.75.75 0 0 0 0-1.5h-1.5a.75.75 0 0 1-.75-.75v-1.5Zm1.97-6.78a.75.75 0 0 1 1.06 0l2 2a.75.75 0 0 1 0 1.06l-2 2a.75.75 0 0 1-1.06-1.06l.72-.72H3.5a.75.75 0 0 1 0-1.5h2.69l-.72-.72a.75.75 0 0 1 0-1.06Zm9.06 5.06a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 0 1 0-1.06l2-2a.75.75 0 1 1 1.06 1.06l-.72.72h2.69a.75.75 0 0 1 0 1.5h-2.69l.72.72a.75.75 0 0 1 0 1.06Z","e":1},"copy":{"v":20,"d":"M9.2 3c-1.285 0-2.158.001-2.833.056-.658.054-.994.151-1.229.271a3 3 0 0 0-1.311 1.311c-.12.235-.217.57-.27 1.229C3.5 6.542 3.5 7.415 3.5 8.7v2.6c0 .585.001.933.022 1.191.01.11.02.176.028.212v.097c0 .761 0 1.264.068 1.642a1.723 1.723 0 0 1-.526-.16 2 2 0 0 1-.874-.874C2 12.98 2 12.42 2 11.3V8.7c0-2.52 0-3.78.49-4.743A4.5 4.5 0 0 1 4.457 1.99C5.42 1.5 6.68 1.5 9.2 1.5h2c1.12 0 1.68 0 2.108.218a2 2 0 0 1 .874.874c.07.137.117.288.15.466C13.96 3 13.472 3 12.75 3H9.2Z M5.1 7.7c0-1.12 0-1.68.218-2.108a2 2 0 0 1 .874-.874C6.62 4.5 7.18 4.5 8.3 4.5h6c1.12 0 1.68 0 2.108.218a2 2 0 0 1 .874.874c.218.428.218.988.218 2.108v7.6c0 1.12 0 1.68-.218 2.108a2 2 0 0 1-.874.874c-.428.218-.988.218-2.108.218h-6c-1.12 0-1.68 0-2.108-.218a2 2 0 0 1-.874-.874C5.1 16.98 5.1 16.42 5.1 15.3V7.7ZM8.3 6h6c.585 0 .933.001 1.191.022.158.013.224.03.242.036a.5.5 0 0 1 .21.209c.005.018.022.084.035.242.02.258.022.606.022 1.191v7.6c0 .585-.001.933-.022 1.191-.013.158-.03.224-.036.242a.5.5 0 0 1-.209.21 1.253 1.253 0 0 1-.242.035c-.258.02-.606.022-1.191.022h-6c-.585 0-.933-.001-1.191-.022a1.253 1.253 0 0 1-.242-.036.5.5 0 0 1-.21-.209 1.255 1.255 0 0 1-.035-.242c-.02-.258-.022-.606-.022-1.191V7.7c0-.585.001-.933.022-1.191.013-.158.03-.224.036-.242a.5.5 0 0 1 .209-.21c.018-.005.084-.022.242-.035C7.367 6.002 7.715 6 8.3 6Zm7.438.06-.003-.002.003.001Zm.203.202v.003-.003Zm0 10.476v-.003a.014.014 0 0 1 0 .003Zm-.203.203h-.003.003Zm-8.876 0h.003-.003Zm-.203-.203v-.003.003Zm0-10.476v.003-.003Zm.203-.203h.003a.05.05 0 0 0-.003 0Z","e":1},"dockL":{"v":16,"d":"M1.5 2.5h13v11h-13z M2.5 3.5v9h11v-9z M3.5 4.5h3v7h-3z","e":1},"dockR":{"v":16,"d":"M1.5 2.5h13v11h-13z M2.5 3.5v9h11v-9z M9.5 4.5h3v7h-3z","e":1},"dockB":{"v":16,"d":"M1.5 2.5h13v11h-13z M2.5 3.5v9h11v-9z M3.5 8.5h9v3h-9z","e":1},"expand":{"v":20,"d":"M9.52813 6.41707c.27516-.22276.66867-.22276.94377 0l5.25 4.25003c.322.2606.3717.7329.1111 1.0548-.2607.3219-.7329.3717-1.0549.111l-4.7781-3.86795-4.77808 3.86795c-.32194.2607-.79421.2109-1.05483-.111s-.21091-.7942.11104-1.0548z"}};
 document.querySelectorAll('.vki').forEach((el) => el.replaceChildren(svgEl(+el.dataset.s, ICONS[el.dataset.vk])));
 function icon(name, size) { return svgEl(size || 14, ICONS[name]); }
 function sevIcon(s, size) { return h('span', { class: 'sevi ' + s }, svgEl(size || 16, ICONS[s])); }
@@ -775,7 +803,6 @@ function validateRe(id) {
   const v = $(id).value.trim(); let bad = false;
   if (v) { try { new RegExp(v); } catch (e) { bad = true; } }
   $(id).classList.toggle('bad', bad); $(id + 'Err').hidden = !bad;
-  if (bad) $('reDetails').open = true;
   return !bad;
 }
 function validateNum(id) {
@@ -801,7 +828,6 @@ function updateDeps() {
 $('tokOnBtn').onclick = () => { $('checkTokens').checked = true; updateDeps(); updateChecksLine(); scheduleSave(); };
 document.addEventListener('change', (e) => { if (e.target.closest && e.target.closest('#chkCfg')) { updateChecksLine(); updateDeps(); updateRunLabel(); } });
 function openChkCfg() { setTab('check'); setSub('check', 'settings'); }
-$('resetSettings').onclick = () => inlineConfirm($('resetSettings'), 'Вернуть значения по умолчанию для проверки и навигации? Словари и сохранённые данные не затрагиваются.', () => send({ type: 'resetSettings' }), 'Сбросить', true);
 $('live').onchange = () => { updateLiveBadge(); if (validateAll()) send({ type: 'live', settings: read() }); };
 
 // ----- Состояние интерфейса (сохраняется между запусками) -----
@@ -831,58 +857,49 @@ $('htSet').onclick = () => setSub(ui.tab, 'settings');
 function updateNavDg() {
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const val = (id) => $(id).value.trim();
-  const px = (v, lo, hi) => clamp(Math.round((parseInt(v, 10) || 0) * 0.11), lo, hi);
+  const px = (v, k, lo, hi) => clamp(Math.round((parseInt(v, 10) || 0) * k), lo, hi);
   const A = val('navGap'), B = val('frameGap'), C = val('rowGap');
-  const aW = px(A, 18, 56), bW = px(B, 14, 40), cH = px(C, 26, 84);
+  const aW = px(A, 0.12, 28, 46), bW = px(B, 0.12, 24, 40), cH = px(C, 0.05, 24, 44);
   const ns = 'http://www.w3.org/2000/svg';
-  const W = 308, NAV = 60, FW = 60, X0 = Math.round((W - (NAV + aW + FW + bW + FW)) / 2), CHIP = 16;
   const el = (name, attrs, ...kids) => { const n = document.createElementNS(ns, name); for (const k in attrs) n.setAttribute(k, attrs[k]); kids.forEach((c) => n.append(c)); return n; };
-  const ACC = 'color-mix(in srgb, var(--accent) 16%, var(--bg))', ACCL = 'color-mix(in srgb, var(--accent) 50%, transparent)';
-  const g = el('g', {});
-  // блок навигации: название ряда + ссылки
-  const nav = (x, y) => { g.append(
-    el('rect', { x, y, width: NAV, height: 50, rx: 6, fill: ACC, stroke: ACCL }),
-    el('rect', { x: x + 8, y: y + 8, width: 26, height: 5, rx: 2.5, fill: 'var(--accent)', opacity: .85 }),
-    el('rect', { x: x + 8, y: y + 20, width: 40, height: 4, rx: 2, fill: ACCL }),
-    el('rect', { x: x + 8, y: y + 29, width: 34, height: 4, rx: 2, fill: ACCL }),
-    el('rect', { x: x + 8, y: y + 38, width: 44, height: 4, rx: 2, fill: ACCL })); };
+  const ACC = 'color-mix(in srgb, var(--accent) 16%, var(--bg))', ACCL = 'color-mix(in srgb, var(--accent) 50%, transparent)', WARN = 'var(--warn)';
+  const NAV = 40, FW = 48, FH = 38, CHIP = 7, GAP = 5;
+  const W = 280, g = el('g', {});
+  const x0 = 12, f1 = x0 + NAV + aW, f2 = f1 + FW + bW, xr = f2 + FW + 14;
+  const rowTop = 24, fy1 = rowTop + CHIP + GAP, bottom1 = fy1 + FH;
+  const fy2 = bottom1 + cH, H = fy2 + FH + 12;
+  // блок навигации: название ряда и две строки ссылок
+  const nav = (y) => g.append(
+    el('rect', { x: x0, y, width: NAV, height: FH, rx: 5, fill: ACC, stroke: ACCL }),
+    el('rect', { x: x0 + 7, y: y + 7, width: 18, height: 4, rx: 2, fill: 'var(--accent)', opacity: .85 }),
+    el('rect', { x: x0 + 7, y: y + 17, width: 26, height: 3, rx: 1.5, fill: ACCL }),
+    el('rect', { x: x0 + 7, y: y + 25, width: 20, height: 3, rx: 1.5, fill: ACCL }));
   // фрейм с кнопкой возврата над ним
-  const frame = (x, top, h) => { g.append(
-    el('rect', { x, y: top - 11, width: 26, height: 7, rx: 3.5, fill: 'var(--accent)', opacity: .22 }),
-    el('rect', { x, y: top, width: FW, height: h, rx: 5, fill: 'var(--bg)', stroke: 'var(--line2)' }),
-    el('rect', { x: x + 7, y: top + 7, width: FW - 14, height: 4, rx: 2, fill: 'var(--chip)' }),
-    el('rect', { x: x + 7, y: top + 15, width: FW - 28, height: 4, rx: 2, fill: 'var(--chip)' })); };
-  // размерная линия: горизонтальная или вертикальная, с засечками и подписью
-  const dim = (x1, y1, x2, y2, letter, value, lx, ly) => {
-    const vert = x1 === x2, t = 3.5;
-    g.append(el('line', { x1, y1, x2, y2, stroke: 'var(--warn)', 'stroke-width': 1.4, 'stroke-linecap': 'round' }),
-      vert ? el('line', { x1: x1 - t, y1, x2: x1 + t, y2: y1, stroke: 'var(--warn)', 'stroke-width': 1.4, 'stroke-linecap': 'round' }) : el('line', { x1, y1: y1 - t, x2: x1, y2: y1 + t, stroke: 'var(--warn)', 'stroke-width': 1.4, 'stroke-linecap': 'round' }),
-      vert ? el('line', { x1: x2 - t, y1: y2, x2: x2 + t, y2, stroke: 'var(--warn)', 'stroke-width': 1.4, 'stroke-linecap': 'round' }) : el('line', { x1: x2, y1: y2 - t, x2, y2: y2 + t, stroke: 'var(--warn)', 'stroke-width': 1.4, 'stroke-linecap': 'round' }));
-    const txt = value || '—', w = 22 + txt.length * 6;
-    g.append(el('rect', { x: lx - w / 2, y: ly - 8, width: w, height: 16, rx: 8, fill: 'var(--bg)', stroke: 'var(--warn)' }),
-      el('circle', { cx: lx - w / 2 + 8, cy: ly, r: 5.5, fill: 'var(--warn)' }),
-      el('text', { x: lx - w / 2 + 8, y: ly + 3, 'text-anchor': 'middle', class: 'dl', style: 'fill:var(--bg);font-size:8px' }, document.createTextNode(letter)),
-      el('text', { x: lx - w / 2 + 17, y: ly + 3.4, class: 'dl' }, document.createTextNode(txt)));
-  };
-  const nx = X0, f1 = nx + NAV + aW, f2 = f1 + FW + bW;
-  const top1 = 34, ft1 = top1 + CHIP, row1Bottom = ft1 + 64;
-  const ft2 = row1Bottom + cH, top2 = ft2 - CHIP, H = ft2 + 64 + 12;
-  // ряд 1
-  nav(nx, top1); frame(f1, ft1, 64); frame(f2, ft1, 48);
-  // ряд 2
-  nav(nx, top2); frame(f1, ft2, 52); frame(f2, ft2, 64);
-  // A и B — над рядом, C — сбоку между рядами
-  const my = ft1 + 12;
-  dim(nx + NAV, my, f1, my, 'A', A, nx + NAV + aW / 2, top1 - 14);
-  dim(f1 + FW, my, f2, my, 'B', B, f1 + FW + bW / 2 + 10, top1 - 14);
-  const cx = f2 + FW + 18;
-  dim(cx, row1Bottom, cx, ft2, 'C', C, cx - 4, (row1Bottom + ft2) / 2);
-  g.append(el('line', { x1: f1, y1: row1Bottom, x2: cx + 4, y2: row1Bottom, stroke: 'var(--warn)', 'stroke-dasharray': '2 3', opacity: .6 }),
-    el('line', { x1: f2, y1: ft2, x2: cx + 4, y2: ft2, stroke: 'var(--warn)', 'stroke-dasharray': '2 3', opacity: .6 }));
+  const frame = (x, y) => g.append(
+    el('rect', { x, y: y - CHIP - GAP, width: 22, height: CHIP, rx: 3.5, fill: 'var(--accent)', opacity: .25 }),
+    el('rect', { x, y, width: FW, height: FH, rx: 5, fill: 'var(--bg)', stroke: 'var(--line2)' }),
+    el('rect', { x: x + 6, y: y + 7, width: FW - 12, height: 3, rx: 1.5, fill: 'var(--chip)' }),
+    el('rect', { x: x + 6, y: y + 14, width: FW - 24, height: 3, rx: 1.5, fill: 'var(--chip)' }));
+  // подпись размера: просто число рядом с линией
+  const tag = (x, y, value, anchor) => g.append(el('text', { x, y: y + 3.4, 'text-anchor': anchor || 'middle', class: 'dl' }, document.createTextNode(value || '—')));
+  const line = (x1, y1, x2, y2, extra) => el('line', Object.assign({ x1, y1, x2, y2, stroke: WARN, 'stroke-width': 1.2, 'stroke-linecap': 'round' }, extra || {}));
+  nav(fy1); frame(f1, fy1); frame(f2, fy1);
+  nav(fy2); frame(f1, fy2); frame(f2, fy2);
+  // A и B: размерные линии по верху ряда, подписи над ними
+  const ly = fy1 - CHIP - GAP - 3;
+  g.append(line(x0 + NAV, ly, f1, ly), line(x0 + NAV, ly - 3, x0 + NAV, ly + 3), line(f1, ly - 3, f1, ly + 3),
+    line(f1 + FW, ly, f2, ly), line(f1 + FW, ly - 3, f1 + FW, ly + 3), line(f2, ly - 3, f2, ly + 3));
+  tag(x0 + NAV + aW / 2, ly - 9, A); tag(f1 + FW + bW / 2, ly - 9, B);
+  // C: вертикальная линия справа между рядами, пунктир к краям рядов
+  g.append(line(f2, bottom1, xr + 3, bottom1, { 'stroke-dasharray': '2 3', opacity: .55, 'stroke-width': 1 }),
+    line(f2, fy2, xr + 3, fy2, { 'stroke-dasharray': '2 3', opacity: .55, 'stroke-width': 1 }),
+    line(xr, bottom1, xr, fy2), line(xr - 3, bottom1, xr + 3, bottom1), line(xr - 3, fy2, xr + 3, fy2));
+  tag(xr + 8, (bottom1 + fy2) / 2, C, 'start');
   const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, 'aria-hidden': 'true' }, g);
-  $('navDg').replaceChildren(svg);
+  ['navDg', 'navDg2'].forEach((id) => $(id).replaceChildren(svg.cloneNode(true)));
 }
 ['navGap', 'frameGap', 'rowGap'].forEach((i) => $(i).addEventListener('input', updateNavDg));
+$('navHowBtn').onclick = () => { const open = $('navHow').hidden; $('navHow').hidden = !open; $('navHowBtn').textContent = open ? 'Скрыть схему' : 'Показать схему'; $('navHowBtn').setAttribute('aria-expanded', String(open)); };
 function setTab(name) {
   ui.tab = name;
   document.querySelectorAll('.rail [data-tab]').forEach((b) => b.setAttribute('aria-selected', b.dataset.tab === name));
@@ -951,6 +968,11 @@ let sessionFixed = 0, undoSnap = 0, tokenStats = null, lastAt = null, lastLive =
 let notice = null, openKey = null, pendingResult = null, forceSelect = false;
 let selCount = 0, selNames = [];
 const skippedKeys = new Set();
+const skippedValues = new Set(); // «Пропустить все»: правило + текст замечания, а не id слоёв
+const valKey = (i) => i.rule + '|' + i.message;
+function saveSkippedValues() { send({ type: 'saveSkippedValues', keys: [...skippedValues] }); }
+const strHash = (str) => { let a = 5381; for (let k = 0; k < str.length; k++) a = ((a << 5) + a + str.charCodeAt(k)) | 0; return (a >>> 0).toString(36); };
+const isExp = (cid) => (ui.expanded || []).includes(cid);
 const seenKeys = new Set();
 const keyOf = (i) => i.id + '|' + i.rule;
 const forceInst = new Set(); // замечания внутри инстансов, которые пользователь решил править на месте
@@ -958,7 +980,7 @@ const instLocked = (i) => !!i.inInstance && !forceInst.has(keyOf(i));
 function instBox(me) {
   const n = me.inInstance, comp = n.main && n.main !== n.name ? ` (компонент «${n.main}»)` : '';
   return h('div', { class: 'box inst' },
-    h('div', { class: 't', text: n.self ? `Это инстанс «${n.name}»${comp}. Значение переопределено на нём — лучше исправить его в главном компоненте, тогда оно обновится у всех копий.` : `Слой внутри инстанса «${n.name}»${comp}. Правка здесь станет локальным переопределением — лучше исправить его в главном компоненте.` }),
+    h('div', { class: 't', text: n.self ? `Это инстанс «${n.name}»${comp}. Значение переопределено на нём — лучше исправить его в главном компоненте, тогда оно обновится у всех копий` : `Слой внутри инстанса «${n.name}»${comp}. Правка здесь станет локальным переопределением — лучше исправить его в главном компоненте` }),
     h('div', { class: 'row', style: 'gap:8px' },
       h('button', { class: 'pri', text: n.remote ? 'Показать инстанс' : 'Открыть главный компонент', title: n.remote ? 'Компонент из библиотеки: дальше ПКМ → Go to main component' : '', onclick: () => send({ type: 'openMain', id: n.id }) }),
       h('button', { class: 'ghost sm', text: 'Исправить в инстансе всё равно', onclick: () => { forceInst.add(keyOf(me)); render(); } })));
@@ -992,7 +1014,8 @@ function markFixed(pred) { current.forEach((i) => { if (!i.state && pred(i)) { i
 const RUN_PHRASES = ['Считаем токены…', 'Проверяем отступы…', 'Проверяем цвета…', 'Сверяем имена слоёв…', 'Ищем дефолтные имена…', 'Заглядываем в скрытые слои…',
   'Присматриваемся к скруглениям…', 'Меряем gap’ы линейкой…', 'Разбираем компоненты по винтикам…', 'Здороваемся с дизайн-системой…', 'Пересчитываем обёртки…', 'Наводим глянец на результаты…'];
 let runTimer = null, runIdx = 0, runProg = '';
-const runBoxes = () => document.querySelectorAll('.runphrase');
+// Блок с фразами и прогрессом — только в пустом состоянии (первая проверка). В сводке при повторной проверке (#runPhraseBar) показываем лишь спиннер на кнопке.
+const runBoxes = () => document.querySelectorAll('.runphrase:not(#runPhraseBar)');
 function mkRunBox(box) {
   box.textContent = ''; box.hidden = false;
   box._t = h('div', { class: 'rp-text' }); box._p = h('div', { class: 'rp-prog' });
@@ -1063,26 +1086,20 @@ function scheduleSave() { clearTimeout(saveTimer); saveTimer = setTimeout(() => 
 ['input', 'change'].forEach((ev) => document.addEventListener(ev, (e) => { if (e.target.closest && e.target.closest('#chkCfg, #tab-nav')) scheduleSave(); }));
 
 // Шаблоны имён: состояние, примеры, пресеты
-const DEF_COMP = '^[A-Z][A-Za-z0-9 ]*(/[A-Z][A-Za-z0-9 ]*)*$';
-const DEF_VAR = '^[A-Za-z][A-Za-z0-9 ]*=[^,=]+(, ?[A-Za-z][A-Za-z0-9 ]*=[^,=]+)*$';
-function reOk(id, example, el) {
-  let ok = null;
-  try { ok = new RegExp($(id).value.trim()).test(example); } catch (e) {}
-  el.textContent = ''; el.className = 'okmark' + (ok === false ? ' no' : '');
-  if (ok === null || !$(id).value.trim()) return;
-  el.append(icon(ok ? 'check' : 'x', 12), ok ? 'Пример подходит' : 'Пример не подходит');
-}
+// Имена блоков выбираются пресетом; сами выражения остаются в скрытых полях (шаблоны компонентов и вариантов — по умолчанию из code.js)
+const NAME_PRESETS = { any: '', kebab: '^[a-z0-9]+(-[a-z0-9]+)*$', camel: '^[a-z][a-zA-Z0-9]*$', pascal: '^[A-Z][a-zA-Z0-9]*$' };
 function updateReUi() {
-  const custom = $('blockPattern').value.trim() || $('componentPattern').value.trim() !== DEF_COMP || $('variantPattern').value.trim() !== DEF_VAR;
-  $('reState').textContent = custom ? 'настроены свои шаблоны' : 'по умолчанию';
-  reOk('componentPattern', 'Category/ButtonPrimary', $('okComp'));
-  reOk('variantPattern', 'Property=Value, Property=Value', $('okVar'));
+  const v = $('blockPattern').value.trim();
+  const key = Object.keys(NAME_PRESETS).find((k) => NAME_PRESETS[k] === v) || 'custom';
+  document.querySelectorAll('input[name=namePreset]').forEach((r) => { r.checked = r.value === key; });
+  $('presetCustomLbl').hidden = key !== 'custom'; // «Свой шаблон» виден только если он остался от прежних настроек
 }
-['blockPattern', 'componentPattern', 'variantPattern'].forEach((i) => $(i).addEventListener('input', updateReUi));
+document.querySelectorAll('input[name=namePreset]').forEach((r) => r.addEventListener('change', () => {
+  if (r.value === 'custom') return;
+  $('blockPattern').value = NAME_PRESETS[r.value]; validateRe('blockPattern'); updateReUi(); scheduleSave();
+}));
 $('libList').onclick = () => send({ type: 'listLibraries' });
 $('tokRefresh').onclick = () => send({ type: 'refreshTokens' });
-$('kebabFill').onclick = () => { $('blockPattern').value = '^[a-z0-9]+(-[a-z0-9]+)*$'; validateRe('blockPattern'); updateReUi(); scheduleSave(); };
-$('camelFill').onclick = () => { $('blockPattern').value = '^[a-z][a-zA-Z0-9]*$'; validateRe('blockPattern'); updateReUi(); scheduleSave(); };
 const tolStep = (d) => { const v = Number($('spacingTolerance').value.replace(',', '.')) || 0; $('spacingTolerance').value = Math.max(0, v + d); validateNum('spacingTolerance'); scheduleSave(); };
 $('tolDec').onclick = () => tolStep(-1);
 $('tolInc').onclick = () => tolStep(1);
@@ -1093,7 +1110,7 @@ document.querySelectorAll('[data-cmp]').forEach((b) => b.onclick = () => {
 function renderLibs(m) {
   const box = $('libBox'); box.textContent = '';
   if (m.error) { box.append(h('div', { class: 'meta', text: 'Библиотеки недоступны: ' + m.error })); return; }
-  if (!m.list.length) { box.append(h('div', { class: 'meta', text: 'К файлу не подключено ни одной библиотеки.' })); return; }
+  if (!m.list.length) { box.append(h('div', { class: 'meta', text: 'Нет подключённых библиотек с переменными. Используются только локальные переменные файла. Стили и библиотеки без опубликованных переменных плагин не видит' })); return; }
   box.append(h('div', { class: 'meta', text: 'Токены каких библиотек использовать (после изменения нажми «Обновить токены»):' }));
   m.list.forEach((l) => {
     const cb = h('input', { type: 'checkbox' });
@@ -1111,12 +1128,15 @@ onmessage = (e) => {
     if (m.version) checkUpdate(m.version, m.repo);
     apply(m.settings);
     if (m.ui) ui = Object.assign(ui, m.ui, { group: 'rule', more: [], sev: Object.assign({ error: true, warn: true, info: true }, m.ui.sev) });
+    updateNavEmpty();
     (m.skipped || []).forEach((k) => skippedKeys.add(k));
+    (m.skippedValues || []).forEach((k) => skippedValues.add(k));
     if (ui.navLabel && ui.navLabel !== '↑ Навигация') $('fnLabel').value = ui.navLabel;
     if (ui.navStatus === true) $('fnStatus').checked = true;
     if (ui.navAlign === true) $('fnAlign').checked = true;
     navDefaults = m.navDefaults || {};
     fillNavComp();
+    setNavMode(navMode());
     setTool(['replace', 'multiply'].includes(ui.tool) ? ui.tool : 'replace');
     setTab(['check', 'nav', 'spell', 'tools'].includes(ui.tab) ? ui.tab : 'check');
     if (typeof spellInit === 'function') spellInit(m.dict);
@@ -1141,7 +1161,7 @@ onmessage = (e) => {
     if (m.phase === 'tokens') { runProg = m.text; paintPhrase(); }
     else { runProg = `Проверено ${m.done} из ${m.total} слоёв`; paintPhrase(); }
   }
-  if (m.type === 'cancelled') { setRunning(false); notice = { text: 'Проверка отменена. Показаны результаты предыдущей проверки.', level: 'warn' }; render(); }
+  if (m.type === 'cancelled') { setRunning(false); notice = { text: 'Проверка отменена. Показаны результаты предыдущей проверки', level: 'warn' }; render(); }
   if (m.type === 'failed') { setRunning(false); notice = { text: 'Не удалось выполнить проверку: ' + m.text, level: 'dng' }; render(); }
   if (m.type === 'result') {
     setRunning(false);
@@ -1150,6 +1170,20 @@ onmessage = (e) => {
     applyResult(m);
   }
   if (m.type === 'undone') { sessionFixed = undoSnap; notice = { text: 'Правка отменена, перепроверяю…', level: 'warn' }; render(); }
+  if (m.type === 'undoSkip') {
+    skippedValues.delete(m.key); saveSkippedValues();
+    current.forEach((x) => { if (x.state === 'skipped' && valKey(x) === m.key && !skippedKeys.has(keyOf(x))) x.state = ''; });
+    render();
+  }
+  if (m.type === 'previewResult') {
+    if (m.bytes) {
+      const url = URL.createObjectURL(new Blob([m.bytes], { type: 'image/png' }));
+      thumbCache.set(m.id, url);
+      if (thumbCache.size > 60) { const old = thumbCache.keys().next().value; URL.revokeObjectURL(thumbCache.get(old)); thumbCache.delete(old); }
+      const b = thumbWant === m.id ? $('pvbox') : null;
+      if (b) { b.className = 'pv'; b.replaceChildren(h('img', { src: url, alt: '' })); }
+    } else if (thumbWant === m.id && $('pvbox')) { $('pvbox').textContent = 'Превью недоступно'; }
+  }
   if (m.type === 'bound') {
     const key = (id, prop) => id + '|' + prop;
     const ok = new Set(m.done.map((d) => key(d.id, d.prop)));
@@ -1178,7 +1212,7 @@ onmessage = (e) => {
     if (m.error) { msgEl.textContent = m.error; levelClass(msgEl, 'warn'); }
     else { $(m.field).value = m.key; ui.navComp = navComp(); saveUi(); msgEl.textContent = `В поле подставлен ключ компонента «${m.name}»`; levelClass(msgEl, 'ok'); }
   }
-  if (m.type === 'navResult') { $('fnMsg').textContent = m.text; levelClass($('fnMsg'), m.ok ? 'ok' : 'warn'); if (m.ok) requestPreview(); }
+  if (m.type === 'navResult') { $('fnMsg').textContent = m.text; levelClass($('fnMsg'), m.ok ? 'ok' : 'warn'); updateNavEmpty(); if (m.ok) requestPreview(); }
   if (m.type === 'picked') pickedComponent(m);
 };
 const typing = (a) => !!(a && ($('out').contains(a) || $('detail').contains(a)) && /^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName));
@@ -1199,7 +1233,7 @@ function applyResult(m) {
   if (!m.live || (notice && notice.level === 'warn')) notice = null;
   const fixedNow = m.live ? current.filter((i) => i.state !== 'skipped' && i.id && !fresh.has(keyOf(i))).map((i) => Object.assign(i, { state: 'fixed' })) : [];
   const was = new Map(current.map((i, n) => [keyOf(i), n]));
-  current = m.issues.map((x) => Object.assign(x, { state: skippedKeys.has(keyOf(x)) ? 'skipped' : '' })).concat(fixedNow)
+  current = m.issues.map((x) => Object.assign(x, { state: skippedKeys.has(keyOf(x)) || (x.id && skippedValues.has(valKey(x))) ? 'skipped' : '' })).concat(fixedNow)
     .sort((a, b) => (was.has(keyOf(a)) ? was.get(keyOf(a)) : Infinity) - (was.has(keyOf(b)) ? was.get(keyOf(b)) : Infinity)).map((x, k) => Object.assign(x, { k }));
   render();
 }
@@ -1209,23 +1243,6 @@ let query = '';
 const passes = (i) => (!ui.rule || i.rule === ui.rule) &&
   (!query || `${i.message} ${i.name} ${i.type} ${i.frame || ''} ${ruleName(i.rule)}`.toLowerCase().includes(query));
 const isWide = () => window.matchMedia('(min-width: 720px)').matches;
-const RULE_WHY = {
-  'name/default': 'Слой назван автоматически. Осмысленное имя помогает находить слои и передавать макет в разработку.',
-  'name/pattern': 'Имя не совпадает с шаблоном из настроек.',
-  'component/name': 'Имя компонента не соответствует шаблону — в библиотеке и в коде он будет назван иначе.',
-  'component/variant': 'Свойство варианта должно быть записано как Property=Value.',
-  'token/stroke': 'Цвет обводки задан вручную. Привяжите стиль или переменную.',
-  'token/text': 'Текст не использует текстовый стиль, поэтому шрифт и размер не обновятся вместе с дизайн-системой.',
-  'token/effect': 'Эффект задан вручную. Используйте стиль эффекта из дизайн-системы.',
-  'token/radius': 'Радиус задан числом. Привяжите переменную, чтобы скругления были единообразными.',
-  'structure/wrapper': 'Лишний контейнер с одним потомком усложняет структуру слоёв и auto-layout.',
-  'cleanup/duplicate': 'Одинаковые слои лежат друг на друге — один из них лишний.',
-  'layout/nav-gap': 'Расстояние до блока навигации отличается от заданного в настройках.',
-  'layout/frame-gap': 'Расстояние между фреймами в ряду отличается от заданного в настройках.',
-  'layout/row-gap': 'Расстояние между рядами отличается от заданного в настройках.',
-  'handoff/font': 'Шрифт недоступен — текст отобразится не так, как задумано.',
-  'handoff/emptytext': 'Пустой текстовый слой остаётся в макете без пользы.',
-};
 function splitMsg(m) { const at = m.indexOf(': '); return at > 0 && m.length - at - 2 <= 24 ? [m.slice(0, at), m.slice(at + 2)] : [m, '']; }
 const timeStr = () => lastAt ? lastAt.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '';
 
@@ -1286,7 +1303,7 @@ function render() {
   const kids = [];
   if (notice) kids.push(h('div', { class: 'banner' + (notice.level === 'dng' ? ' dng' : ''), role: 'status', text: notice.text }));
   if (tokenStats && tokenStats.colors + tokenStats.floats === 0) {
-    kids.push(h('div', { class: 'banner dng' }, 'Токены дизайн-системы не загружены (0 переменных). Проверь, что в файле или подключённых библиотеках есть опубликованные переменные и включена опция «Включая подключённые библиотеки».',
+    kids.push(h('div', { class: 'banner dng' }, 'Токены дизайн-системы не загружены (0 переменных). Проверь, что в файле или подключённых библиотеках есть опубликованные переменные и включена опция «Включая подключённые библиотеки»',
       h('div', null, h('button', { class: 'sm', text: 'Открыть настройки', onclick: gotoLibrarySetting }))));
   }
   navList = []; cardEls = new Map();
@@ -1314,7 +1331,15 @@ function render() {
   sc.scrollTop = y;
   // открытая карточка исчезла (исправили/пропустили) — открываем следующую и показываем её на холсте
   let advanced = forceSelect; forceSelect = false;
-  if (isWide() && !(openKey && cardEls.has(openKey)) && navList.length) { openKey = keyOf(navList[Math.max(0, Math.min(prevIdx < 0 ? 0 : prevIdx, navList.length - 1))].item); advanced = advanced || prevIdx >= 0; }
+  if (isWide() && !(openKey && cardEls.has(openKey)) && navList.length) {
+    // берём ближайшую видимую карточку: слои в свёрнутых группах на экране отсутствуют
+    const shown = navList.map((x, n) => ({ x, n })).filter(({ x }) => cardEls.has(keyOf(x.item)));
+    if (shown.length) {
+      const start = Math.max(0, prevIdx < 0 ? 0 : prevIdx);
+      const pick = shown.find(({ n }) => n >= start) || shown[shown.length - 1];
+      openKey = keyOf(pick.x.item); advanced = advanced || prevIdx >= 0;
+    }
+  }
   if (openKey && cardEls.has(openKey)) openCardEl(openKey, advanced, !advanced); else renderDetail(null);
   if (hlKey && !cardEls.has(hlKey)) clearHl();
   updateNav();
@@ -1323,15 +1348,6 @@ function render() {
 function resetFilter() { ui.sev = { error: true, warn: true, info: true }; ui.rule = ''; query = ''; saveUi(); render(); }
 
 
-
-// Подтверждение прямо на месте: кнопка заменяется вопросом «Применить / Отмена».
-function inlineConfirm(btn, text, onOk, okLabel, danger) {
-  const box = h('div', { class: 'confirm' + (danger ? ' dng' : ''), role: 'alert' }, h('div', { text }),
-    h('div', { class: 'row' },
-      h('button', { class: danger ? 'danger' : '', text: okLabel || 'Применить', onclick: () => { box.remove(); btn.hidden = false; onOk(); } }),
-      h('button', { class: 'sm', text: 'Отмена', onclick: () => { box.remove(); btn.hidden = false; btn.focus(); } })));
-  btn.hidden = true; btn.after(box); box.querySelector('button').focus();
-}
 
 function groupTitleFor(kind, key) { if (key.startsWith('inst:')) return `В компоненте «${key.slice(5)}»`; return kind === 'rule' ? (GROUP[key] ?? key) : key; }
 const PAGE_SIZE = 8;
@@ -1350,14 +1366,47 @@ function buildGroups(vis, open) {
     res.push(h('button', { class: 'ghead', 'aria-expanded': !collapsed, onclick: () => {
       ui.collapsed = collapsed ? ui.collapsed.filter((x) => x !== gid) : ui.collapsed.concat(gid); saveUi(); render();
     } }, h('span', { class: 'caret' }, icon(collapsed ? 'right' : 'down', 10)), h('span', { text: groupTitleFor(ui.group, key) }), st ? h('span', { class: 'pill st', text: st }) : null, h('span', { class: 'cnt', text: items.length })));
-    items.forEach((i) => navList.push({ item: i, gid }));
+    // одинаковые замечания (то же правило и текст) сворачиваются в одну строку; по рамкам фреймов группировка плоская
+    const blocks = [];
+    if (ui.group === 'rule') {
+      const byVal = new Map();
+      items.forEach((i) => {
+        const k = gid + '|' + strHash(valKey(i));
+        let blk = byVal.get(k);
+        if (!blk) { blk = { cid: k, items: [] }; byVal.set(k, blk); blocks.push(blk); }
+        blk.items.push(i);
+      });
+    } else items.forEach((i) => blocks.push({ cid: '', items: [i] }));
+    blocks.forEach((blk) => {
+      if (blk.items.length < 2) blk.cid = '';
+      blk.items.forEach((i, ci) => navList.push({ item: i, gid, cid: blk.cid, ci }));
+    });
     if (collapsed) continue;
-    items.forEach((i) => res.push(buildCard(i)));
+    blocks.forEach((blk) => { if (blk.cid) res.push(...buildCluster(blk)); else res.push(buildCard(blk.items[0])); });
   }
   return res;
 }
 
-function buildCard(i) {
+// Строка-группа одинаковых замечаний: клик раскрывает слои и открывает первый из них справа.
+function buildCluster(blk) {
+  const { cid, items } = blk, first = items[0], exp = isExp(cid);
+  const [short, val] = splitMsg(first.message);
+  const sev = items.some((x) => x.severity === 'error') ? 'error' : items.some((x) => x.severity === 'warn') ? 'warn' : 'info';
+  const types = [...new Set(items.map((x) => x.type))].slice(0, 3).join(', ');
+  const head = h('button', { class: 'chead' + (!exp && items.some((x) => keyOf(x) === openKey) ? ' open' : ''), 'aria-expanded': String(exp), onclick: () => {
+    ui.expanded = exp ? (ui.expanded || []).filter((x) => x !== cid) : (ui.expanded || []).concat(cid).slice(-200); saveUi();
+    if (!exp) { openKey = keyOf(first); forceSelect = true; }
+    render();
+  } }, h('span', { class: 'caret' }, icon(exp ? 'down' : 'right', 10)), sevIcon(sev, 15),
+  h('div', { class: 'ct' }, h('div', { class: 'cmsg', text: short }), h('div', { class: 'csub', text: (val ? val + ' · ' : '') + types })),
+  h('span', { class: 'cnt', text: items.length }));
+  const out = [head];
+  if (!exp) return out;
+  out.push(h('div', { class: 'cbody' }, items.map((i) => buildCard(i, true))));
+  return out;
+}
+
+function buildCard(i, compact) {
   const key = keyOf(i);
   const card = h('div', { class: `issue ${i.severity}` + (seenKeys.has(key) ? ' seen' : '') + (i.state === 'fixed' ? ' fixed' : '') });
   const [short, val] = splitMsg(i.message);
@@ -1365,9 +1414,10 @@ function buildCard(i) {
   const head = h('div', { class: 'ihead', role: 'button', tabindex: '0', 'aria-expanded': 'false' },
     i.state === 'fixed' ? h('span', { class: 'sev fixmark', title: 'Исправлено', 'aria-label': 'Исправлено', text: '✓' })
       : h('span', { class: 'sev', title: SEV[i.severity].label, 'aria-label': SEV[i.severity].label }, sevIcon(i.severity, 15)),
-    h('div', { class: 'imain' }, h('div', { class: 'msg', text: short }),
-      h('div', { class: 'imeta' }, h('span', { class: 'tag', text: i.type }), h('span', { class: 'ell', text: i.name + (where && ui.group === 'rule' ? ' · ' + where : ''), title: i.name }))),
-    val ? h('span', { class: 'val', text: val }) : null);
+    h('div', { class: 'imain' }, h('div', { class: 'msg', text: compact ? (i.name || i.type) : short }),
+      h('div', { class: 'imeta' }, h('span', { class: 'tag', text: i.type }),
+        h('span', { class: 'ell', text: compact ? (i.path && i.path.length ? i.path.slice(-2).join(' › ') : where) : i.name + (where && ui.group === 'rule' ? ' · ' + where : ''), title: i.name }))),
+    val && !compact ? h('span', { class: 'val', text: val }) : null);
   head.onclick = () => toggleCard(key);
   head.onkeydown = (e) => {
     if (isWide()) {
@@ -1421,13 +1471,18 @@ function updateNav() {
 }
 function stepNav(d) {
   if (!navList.length) return;
-  let idx = navList.findIndex((x) => keyOf(x.item) === openKey);
-  idx = idx < 0 ? (d > 0 ? 0 : navList.length - 1) : (idx + d + navList.length) % navList.length;
-  const { item, gid } = navList[idx];
+  const cur = navList.findIndex((x) => keyOf(x.item) === openKey), cnt = navList.length;
+  let idx = cur < 0 ? (d > 0 ? 0 : cnt - 1) : (cur + d + cnt) % cnt;
+  // идём по видимым карточкам, а свёрнутую группу раскрываем только если больше идти некуда
+  for (let n = idx, guard = 0; guard < cnt; n = (n + d + cnt) % cnt, guard++) { if (cardEls.has(keyOf(navList[n].item))) { idx = n; break; } }
+  const { item, gid, cid } = navList[idx];
   const key = keyOf(item);
   if (ui.collapsed.includes(gid) || !cardEls.has(key)) {
     ui.collapsed = ui.collapsed.filter((x) => x !== gid);
     if (!ui.more.includes(gid)) ui.more = ui.more.concat(gid);
+    if (cid) {
+      if (!isExp(cid)) ui.expanded = (ui.expanded || []).concat(cid).slice(-200);
+    }
     saveUi(); openKey = key; render();
   }
   openCardEl(key, true, false);
@@ -1462,60 +1517,136 @@ function skipIssue(me, keepOpen) {
   render();
 }
 
+// Превью слоя: строится плагином (exportAsync) только для открытого замечания и кэшируется
+const thumbCache = new Map();
+let thumbWant = null, thumbTimer = null;
+function thumbBox(id) {
+  const box = h('div', { class: 'pv empty', id: 'pvbox', 'aria-hidden': 'true' }, 'Готовлю превью…');
+  thumbWant = id;
+  const url = thumbCache.get(id);
+  if (url) { box.className = 'pv'; box.replaceChildren(h('img', { src: url, alt: '' })); return box; }
+  clearTimeout(thumbTimer);
+  thumbTimer = setTimeout(() => send({ type: 'preview', id }), 200); // при быстром листании стрелками не шлём запрос на каждый слой
+  return box;
+}
+function whereBox(i) {
+  const crumbs = i.path && i.path.length ? i.path.join(' › ') : '';
+  return h('div', { class: 'box where' }, thumbBox(i.id),
+    h('div', { class: 'k', style: 'margin-bottom:4px', text: 'Где' }),
+    crumbs ? h('div', { class: 'crumbs', text: crumbs }) : null,
+    h('div', { class: 'line1', style: 'margin-top:2px' }, h('span', { class: 'tag', text: i.type }), h('span', { class: 'ell', text: i.name, title: i.name })));
+}
+// Значение слоя, выбор токена для него и ближайшие токены, если в допуске ничего нет. selEls заполняется селектами по номеру исправления.
+function valueBox(i, selEls, solo) {
+  const tol = $('spacingTolerance').value.trim() || '2';
+  const box = h('div', { class: 'box' }, h('div', { class: 'k', text: 'Значение' }));
+  // одинаковые числовые значения с тем же набором токенов (padding-left и padding-right…) показываем одной строкой с одним выбором
+  const rows = [];
+  (i.fixes || []).forEach((f, k) => {
+    const sig = typeof f.value === 'number' ? f.value + '|' + (f.cands || []).map((c) => c.id).join(',') + '|' + (f.near || []).map((c) => c.name + c.label).join(',') : 'k' + k;
+    let r = rows.find((x) => x.sig === sig);
+    if (!r) { r = { sig, f, ks: [], names: [] }; rows.push(r); }
+    r.ks.push(k); r.names.push(f.label.replace(/\s+-?[\d.]+px$/, ''));
+  });
+  let anySel = false, anyNone = false, anyApprox = false;
+  rows.forEach(({ f, ks, names }) => {
+    const rgb = f.color ? `rgb(${Math.round(f.color.r * 255)},${Math.round(f.color.g * 255)},${Math.round(f.color.b * 255)})` : '';
+    const label = ks.length > 1 ? `${names.join(', ')} ${f.value}px` : f.label;
+    const top = h('div', { class: 'top' }, h('div', { class: 'line1' }, rgb ? h('span', { class: 'swatch', style: `background:${rgb}` }) : null, h('span', { class: 'lbl', text: label })));
+    const row = h('div', { class: 'vr' }, top);
+    if (f.cands && f.cands.length) {
+      if (!instLocked(i)) {
+        const sel = h('select', { 'aria-label': 'Токен' }, f.cands.map((c) => h('option', { value: c.id, text: `${c.exact ? '✓' : '≈'} ${c.name} (${c.label})` })));
+        ks.forEach((k) => { selEls[k] = sel; });
+        anySel = true; if (f.cands.some((c) => !c.exact)) anyApprox = true;
+        row.append(h('div', { class: 'vsel' }, sel,
+          h('button', { class: solo ? 'pri' : '', text: 'Привязать', onclick: () => act({ type: 'bind', items: ks.map((k) => ({ id: i.id, prop: i.fixes[k].prop, varId: sel.value, color: f.color })) }) })));
+      }
+    } else {
+      anyNone = true;
+      // ближайшие токены словами («меньше на 4px»), чтобы не путать со знаком минус
+      if (f.near && f.near.length) top.append(h('div', { class: 'nr' }, f.near.map((c) =>
+        h('span', null, h('b', { text: c.name }), ` ${c.label}, ${c.diff < 0 ? 'меньше' : 'больше'} на ${Math.abs(c.diff)}px`))));
+    }
+    box.append(row);
+  });
+  if (anyNone) box.append(h('div', { class: 'vnote' }, icon('info', 14), (i.fixes || []).some((f) => f.near) ? `В допуске ${tol}px токенов нет. Справа ближайшие` : 'Подходящего токена в дизайн-системе нет'));
+  if (anySel && anyApprox) box.append(h('div', { class: 'meta', style: 'margin-top:8px', text: '✓ точное совпадение · ≈ близкое значение' }));
+  return box;
+}
+// «Пропустить все»: запоминается правило и текст замечания, поэтому подходит и для тысяч слоёв
+function skipAllLike(me) {
+  const key = valKey(me);
+  skippedValues.add(key); saveSkippedValues();
+  let count = 0;
+  current.forEach((x) => { if (!x.state && x.id && valKey(x) === key) { x.state = 'skipped'; count++; } });
+  send({ type: 'skipToast', count, key }); // тост Figma с кнопкой «Отменить»
+  forceSelect = true;
+  render();
+}
+function groupBox(i, grpAll, val, selEls) {
+  const n = grpAll.length;
+  const hasBind = (x) => (x.fixes || []).some((f) => f.cands && f.cands.length);
+  let main = null;
+  if (!i.inInstance) {
+    if (hasBind(i)) {
+      const withBind = grpAll.filter(hasBind);
+      // токен берём из выбранного у этого слоя; у слоёв с тем же значением набор кандидатов совпадает
+      const items = () => withBind.flatMap((x) => x.fixes.flatMap((f, k) => {
+        if (!(f.cands && f.cands.length)) return [];
+        const want = selEls[k] && selEls[k].value;
+        const c = f.cands.find((cc) => cc.id === want) || f.cands[0];
+        return [{ id: x.id, prop: f.prop, varId: c.id, color: f.color }];
+      }));
+      main = h('button', { class: 'pri', text: `Привязать ко всем (${withBind.length})`, onclick: () => act({ type: 'bind', items: items() }) });
+    } else if (i.renamable && i.suggest) {
+      const items = grpAll.filter((x) => x.renamable && x.suggest).map((x) => ({ id: x.id, name: x.suggest }));
+      main = h('button', { class: 'pri', text: `Переименовать все (${new Set(items.map((x) => x.id)).size})`, onclick: () => act({ type: 'renameMany', items }) });
+    } else if (i.unwrap && i.unwrap.safe) {
+      const ids = grpAll.filter((x) => x.unwrap && x.unwrap.safe).map((x) => x.id);
+      main = h('button', { class: 'pri', text: `Убрать обёртки у всех (${new Set(ids).size})`, onclick: () => act({ type: 'unwrap', ids, settings: read() }) });
+    }
+  }
+  let del = null;
+  if (!i.inInstance && (i.removable || i.manualRemove)) {
+    const list = grpAll.filter((x) => (i.removable ? x.removable : x.manualRemove));
+    del = h('button', { class: 'danger', text: `Удалить все (${list.length})` });
+    del.onclick = () => act({ type: 'remove', ids: list.map((x) => x.id) }); // отмена — кнопка в тосте Figma или Cmd+Z
+  }
+  const skipAll = h('button', { text: `Пропустить все (${n})`,
+    title: 'Такие замечания уберутся из списка и не вернутся при следующих проверках. Вернуть можно в блоке «Обработано»', onclick: () => skipAllLike(i) });
+  const selAll = h('button', { text: 'Выделить все', title: 'Выделяет эти слои на холсте, ничего не меняя', onclick: () => send({ type: 'selectMany', ids: grpAll.map((x) => x.id) }) });
+  return h('div', { class: 'box hl grp' },
+    h('div', { class: 'ghd' }, h('div', { class: 'k', text: `Все ${n} ${plural(n, 'слой', 'слоя', 'слоёв')}` }),
+      h('div', { class: 't' }, 'С таким замечанием', val ? [' ', h('span', { class: 'mono', text: val })] : null),
+      h('div', { class: 'meta', text: 'Пропущенные замечания не вернутся при следующих проверках. Вернуть можно в блоке «Обработано»' })),
+    h('div', { class: 'row', style: 'gap:8px; flex-wrap:wrap' }, [main, selAll, del, skipAll].filter(Boolean)));
+}
+
 function renderDetail(i) {
   const d = $('detail'); d.textContent = '';
-  if (!i) { d.append(h('div', { class: 'empty', style: 'margin:auto' }, h('b', { text: 'Выбери замечание слева' }), 'Справа появятся подробности и действия')); return; }
+  if (!i) { d.append(h('div', { class: 'empty' }, h('b', { text: 'Выбери замечание слева' }), 'Справа появятся подробности и действия')); return; }
   const [short, val] = splitMsg(i.message);
-  const pane = h('div', { class: 'dpane' });
-  pane.append(h('div', null, h('h2', { text: short }), RULE_WHY[i.rule] ? h('p', { class: 'why', text: RULE_WHY[i.rule] }) : null));
-  const f0 = (i.fixes || [])[0];
-  if (f0) {
-    const c0 = f0.cands && f0.cands[0];
-    const rgb = f0.color ? `rgb(${Math.round(f0.color.r * 255)},${Math.round(f0.color.g * 255)},${Math.round(f0.color.b * 255)})` : '';
-    pane.append(h('div', { class: 'box' }, h('div', { class: 'k', text: 'Значение' }),
-      h('div', { class: 'line1' }, rgb ? h('span', { class: 'swatch', style: `background:${rgb}` }) : null, h('span', { class: 'mono', style: 'font-size:13px', text: f0.label })),
-      c0 ? h('div', { class: 'note' }, 'Ближайший токен', h('span', { class: 'tok', text: c0.name || '' }), h('span', { text: c0.exact ? 'точное совпадение' : '≈ в пределах допуска' }))
-         : h('div', { class: 'note' }, icon('info', 14), 'Подходящего токена в дизайн-системе нет')));
-  }
   const same = current.filter((x) => !x.state && x !== i && x.rule === i.rule && x.message === i.message && x.id);
-  if (same.length) {
-    const grpAll = [i].concat(same);
-    pane.append(h('div', { class: 'box hl' }, h('div', { class: 't' }, `Ещё ${same.length} ${plural(same.length, 'слой', 'слоя', 'слоёв')} с тем же`, val ? [' ', h('span', { class: 'mono', text: val })] : ' замечанием'),
-      h('div', { class: 'row', style: 'gap:8px' },
-        h('button', { text: 'Выделить все', onclick: () => send({ type: 'selectMany', ids: grpAll.map((x) => x.id) }) }),
-        (() => {
-          if (i.inInstance) return null;
-          const hasBind = (x) => (x.fixes || []).some((f) => f.cands && f.cands.length);
-          let label = '', msg = null;
-          if (hasBind(i)) {
-            const items = grpAll.filter(hasBind).flatMap((x) => x.fixes.filter((f) => f.cands && f.cands.length).map((f) => ({ id: x.id, prop: f.prop, varId: f.cands[0].id, color: f.color })));
-            label = 'Привязать ко всем'; msg = { type: 'bind', items };
-          } else if (i.renamable && i.suggest) {
-            const items = grpAll.filter((x) => x.renamable && x.suggest).map((x) => ({ id: x.id, name: x.suggest }));
-            label = 'Переименовать все'; msg = { type: 'renameMany', items };
-          } else if (i.unwrap && i.unwrap.safe) {
-            const ids = grpAll.filter((x) => x.unwrap && x.unwrap.safe).map((x) => x.id);
-            label = 'Убрать обёртки у всех'; msg = { type: 'unwrap', ids, settings: read() };
-          }
-          if (!msg) return null;
-          const n = new Set((msg.items || msg.ids).map((x) => x.id || x)).size;
-          return h('button', { class: 'pri', text: `${label} (${n})`, onclick: () => act(msg) });
-        })(),
-        (() => {
-          if (i.inInstance || !(i.removable || i.manualRemove)) return null;
-          const del = grpAll.filter((x) => (i.removable ? x.removable : x.manualRemove));
-          const btn = h('button', { class: 'danger', text: `Удалить все (${del.length})` });
-          btn.onclick = () => inlineConfirm(btn, `Удалить слоёв: ${del.length}? Потом можно нажать «Отменить» или Cmd+Z.`, () => act({ type: 'remove', ids: del.map((x) => x.id) }), 'Удалить', true);
-          return btn;
-        })())));
-  }
-  const pf = i.state === 'fixed' || instLocked(i) ? null : primaryFix(i);
-  if (i.state === 'fixed') pane.append(h('div', { class: 'meta ok', text: '✓ Исправлено — проверь результат на холсте' }));
+  const grpAll = [i].concat(same);
+  const pane = h('div', { class: 'dpane' });
+  const kind = GROUP[i.rule.split('/')[0]] || '';
+  pane.append(h('div', null,
+    h('div', { class: 'meta', text: kind + (same.length ? ` · ${grpAll.length} ${plural(grpAll.length, 'слой', 'слоя', 'слоёв')}` : '') }),
+    h('h2', { text: short })));
+  // действия для этого слоя — сразу под заголовком, только кнопки
+  const fixBound = (i.fixes || []).some((f) => f.cands && f.cands.length);
+  const pf = i.state === 'fixed' || instLocked(i) || fixBound ? null : primaryFix(i); // привязка токена уже есть в блоке «Значение»
   pane.append(h('div', { class: 'row', style: 'gap:8px' },
-    pf ? h('button', { class: 'pri', onclick: pf.run }, pf.label, h('span', { class: 'kbd', style: 'background:transparent;border-color:rgba(255,255,255,.4);color:#fff', text: 'Enter' })) : null,
-    i.state === 'fixed' ? null : h('button', { onclick: () => skipIssue(i, false) }, 'Пропустить — так и надо', h('span', { class: 'kbd', text: 'S' })),
-    h('button', { class: 'ghost ico', title: 'Показать на холсте', 'aria-label': 'Показать на холсте', onclick: () => send({ type: 'select', id: i.id }) }, icon('target', 15))));
-  const more = i.state === 'fixed' ? h('div') : buildActs(i, { noSkip: true });
+    pf ? h('button', { class: same.length ? '' : 'pri', onclick: pf.run }, pf.label) : null,
+    i.state === 'fixed' ? null : h('button', { onclick: () => skipIssue(i, false) }, 'Пропустить', h('span', { class: 'kbd', text: 'S' })),
+    h('button', { class: 'ico', title: 'Показать на холсте', 'aria-label': 'Показать на холсте', onclick: () => send({ type: 'select', id: i.id }) }, icon('target', 15))));
+  if (i.state === 'fixed') pane.append(h('div', { class: 'meta ok', text: '✓ Исправлено — проверь результат на холсте' }));
+  if (i.id) pane.append(whereBox(i));
+  const selEls = [];
+  if ((i.fixes || []).length) pane.append(valueBox(i, selEls, !same.length));
+  if (same.length) pane.append(groupBox(i, grpAll, val, selEls));
+  const more = i.state === 'fixed' ? h('div') : buildActs(i, { noSkip: true, noFixes: true });
   if (more.children.length) pane.append(h('div', { class: 'dacts' }, more));
   d.append(pane);
   updateNav();
@@ -1528,7 +1659,7 @@ function buildActs(me, opts) {
   const skipRow = () => {
     if (me.id && !(opts && opts.noSkip)) acts.append(h('div', { class: 'skip row' },
       h('button', { onclick: () => send({ type: 'select', id: me.id }) }, icon('target'), 'Показать на холсте'),
-      h('button', { class: 'ghost', text: 'Пропустить — так и надо', title: 'Замечание уберётся из списка и не вернётся при следующих проверках', onclick: () => {
+      h('button', { class: 'ghost', text: 'Пропустить', title: 'Замечание уберётся из списка и не вернётся при следующих проверках', onclick: () => {
         skipIssue(me, true);
       } })));
   };
@@ -1544,7 +1675,7 @@ function buildActs(me, opts) {
       h('div', { class: 'row' }, inp, h('button', { text: 'Переименовать', onclick: go }))].filter(Boolean));
   }
 
-  (me.fixes || []).forEach((f) => {
+  (opts && opts.noFixes ? [] : me.fixes || []).forEach((f) => {
     const row = h('div', null, h('div', { class: 'meta', text: f.label }));
     if (!f.cands.length) row.append(h('div', { class: 'meta', text: 'Подходящего токена в дизайн-системе нет' }));
     else {
@@ -1560,14 +1691,24 @@ function buildActs(me, opts) {
   if (me.unwrap && me.unwrap.safe) acts.append(h('div', { class: 'row' }, h('button', { text: 'Убрать обёртку', onclick: () => act({ type: 'unwrap', ids: [me.id], settings: read() }) })));
   if (me.removable) acts.append(h('div', { class: 'row' }, h('button', { class: 'danger', text: 'Удалить слой', onclick: () => act({ type: 'remove', ids: [me.id] }) })));
   if (me.manualRemove) acts.append(h('div', { class: 'row' }, h('button', { class: 'danger', text: 'Удалить слой', title: me.rule === 'cleanup/hidden' ? 'Слой скрыт внутри компонента: проверь, что его не включает свойство компонента' : 'Проверь, что это не распорка', onclick: () => act({ type: 'remove', ids: [me.id] }) }),
-    me.rule === 'cleanup/hidden' ? h('span', { class: 'meta', text: 'Скрытие может быть вариантом или свойством компонента — удаляй, если уверен.' }) : null));
+    me.rule === 'cleanup/hidden' ? h('span', { class: 'meta', text: 'Скрытие может быть вариантом или свойством компонента — удаляй, если уверен' }) : null));
   skipRow();
   return acts;
 }
 
 function buildHandled(handled) {
-  const d = h('details', { class: 'handled' }, h('summary', { text: `Обработано (${handled.length})` }));
+  const byVal = new Map(), rest = [];
   handled.forEach((i) => {
+    if (i.state === 'skipped' && skippedValues.has(valKey(i)) && !skippedKeys.has(keyOf(i))) { const k = valKey(i); (byVal.get(k) || byVal.set(k, []).get(k)).push(i); }
+    else rest.push(i);
+  });
+  const d = h('details', { class: 'handled' }, h('summary', { text: `Обработано (${handled.length})` }));
+  // «Пропустить все» показываем одной строкой, а не тысячей
+  byVal.forEach((list, k) => {
+    d.append(h('div', { class: 'done skipped' }, `⏭ Пропущено ${list.length}: `, h('s', { text: list[0].message }), ' ',
+      h('button', { class: 'link', text: ' вернуть', onclick: () => { skippedValues.delete(k); saveSkippedValues(); list.forEach((x) => { x.state = ''; }); render(); } })));
+  });
+  rest.forEach((i) => {
     const el = h('div', { class: 'done ' + i.state, role: 'button', tabindex: '0' },
       i.state === 'fixed' ? '✓ Исправлено: ' : '⏭ Пропущено: ', h('s', { text: i.message }), ' ', h('span', { class: 'meta', text: i.name }),
       i.state === 'skipped' ? h('button', { class: 'link', text: ' вернуть', onclick: (ev) => { ev.stopPropagation(); skippedKeys.delete(keyOf(i)); saveSkipped(); i.state = ''; render(); } }) : null);
@@ -1575,7 +1716,7 @@ function buildHandled(handled) {
     el.onclick = go; el.onkeydown = (e) => { if (e.key === 'Enter') go(); };
     d.append(el);
   });
-  d.open = handled.length <= 5;
+  d.open = byVal.size + rest.length <= 5;
   return d;
 }
 
@@ -1591,7 +1732,7 @@ function updateSel() { updateHead(); }
 $('swAnn').onchange = () => {
   if (!$('swAnn').checked) { send({ type: 'clearAnnotations' }); $('annMsg').textContent = ''; return; }
   const items = current.filter((i) => i.id && i.severity !== 'info' && i.rule !== 'scope' && !i.state).map((i) => ({ id: i.id, message: i.message }));
-  if (!items.length) { $('swAnn').checked = false; $('annMsg').textContent = 'Нечего размечать — открытых ошибок и предупреждений нет.'; return; }
+  if (!items.length) { $('swAnn').checked = false; $('annMsg').textContent = 'Нечего размечать — открытых ошибок и предупреждений нет'; return; }
   $('annMsg').textContent = ''; send({ type: 'annotate', items });
 };
 
@@ -1624,19 +1765,10 @@ function renderSwapRows() {
     h('button', { class: 'dashed', id: 'pickFrom', title: 'Выдели инстанс на холсте — его компонент станет «старым»', onclick: () => send({ type: 'pickComponent', which: 'from' }) }, '+ Из выделения'), h('span'),
     h('button', { class: 'dashed', id: 'pickTo', title: 'Выдели инстанс или компонент — он станет «новым» в последнем правиле', onclick: () => send({ type: 'pickComponent', which: 'to' }) }, '+ Из выделения'), h('span')));
 }
-function parseSwap() {
-  const ok = [], bad = [];
-  $('swapRules').value.split('\n').forEach((l, n) => {
-    if (!l.trim()) return;
-    const p = l.split('->').map((x) => x.trim());
-    if (p.length === 2 && p[0] && p[1]) ok.push(p); else bad.push({ n: n + 1, l: l.trim() });
-  });
-  return { ok, bad };
-}
 function renderSwapParsed() {
   const { ok, bad } = parseSwap(); const box = $('swapParsed'); box.textContent = '';
   if (bad.length) box.append(h('div', { class: 'tbl' }, h('table', null,
-    bad.map((b) => h('tr', null, h('td', { class: 'warnt', text: '⚠' }), h('td', { text: `Строка ${b.n} не заполнена до конца: «${b.l}». Нужен формат «Старый -> Новый».` }))))));
+    bad.map((b) => h('tr', null, h('td', { class: 'warnt', text: '⚠' }), h('td', { text: `Строка ${b.n} не заполнена до конца: «${b.l}». Нужен формат «Старый -> Новый»` }))))));
   $('swapDry').disabled = $('swapDo').disabled = !ok.length;
   $('swapCount').textContent = ok.length ? `${ok.length} ${plural(ok.length, 'правило', 'правила', 'правил')} · сначала найди совпадения` : 'Добавь правило';
   return ok;
@@ -1661,17 +1793,17 @@ function showSwap(m) {
 $('swapDry').onclick = () => { const rules = renderSwapParsed(); if (!rules.length) return; $('swapOut').textContent = 'Ищу…'; send({ type: 'swap', dry: true, rules }); };
 $('swapDo').onclick = () => {
   const rules = renderSwapParsed(); if (!rules.length) return;
-  inlineConfirm($('swapDo'), 'Заменить найденные инстансы? Версия файла сохранится автоматически, после замены можно нажать «Отменить» или Cmd+Z.', () => act({ type: 'swap', dry: false, rules }), 'Заменить');
+  act({ type: 'swap', dry: false, rules }); // версия файла сохраняется автоматически, отмена — в тосте Figma
 };
 function pickedComponent(m) {
   const out = $('swapOut');
-  if (!m.name) { out.textContent = 'Выдели на холсте инстанс или компонент.'; return; }
+  if (!m.name) { out.textContent = 'Выдели на холсте инстанс или компонент'; return; }
   if (m.which === 'from') {
     const last = swapRows[swapRows.length - 1];
     if (last && !last[0] && !last[1]) last[0] = m.name; else swapRows.push([m.name, '']);
   } else {
     const row = [...swapRows].reverse().find((r) => r[0] && !r[1]);
-    if (!row) { out.textContent = 'Сначала добавь «старый» компонент — появится строка «Старый -> ».'; return; }
+    if (!row) { out.textContent = 'Сначала добавь «старый» компонент — появится строка «Старый -> »'; return; }
     row[1] = m.name;
   }
   out.textContent = ''; renderSwapRows(); syncSwap();
@@ -1686,14 +1818,21 @@ function requestPreview() {
 
 // ----- Расстояния -----
 let lyIssues = null;
+// Пустое состояние (инструкция и схема) показывается один раз: пока нет результатов и пока пользователь ни разу не запускал проверку или создание.
+// Потом схему можно открыть в настройках навигации.
+function updateNavEmpty() {
+  const hasOut = $('lyOut').textContent.trim() || $('fnMsg').textContent.trim();
+  $('navEmpty').hidden = !!ui.navSeen || !!hasOut;
+}
+function navSeen() { if (!ui.navSeen) { ui.navSeen = true; saveUi(); } }
 function lyRender() {
   const out = $('lyOut'); out.textContent = '';
-  if (!lyIssues) { $('lyFix').disabled = true; return; }
+  if (!lyIssues) { updateNavEmpty(); return; }
   const clear = h('button', { class: 'sm ghost', text: 'Очистить', onclick: () => { lyIssues = null; lyRender(); } });
   const fixable = lyIssues.filter((i) => i.layoutFix);
-  $('lyFix').disabled = !fixable.length;
-  if (!lyIssues.length) { out.append(h('div', { class: 'row', style: 'margin-top:6px;justify-content:space-between' }, h('div', { class: 'meta ok', text: '✅ Расстояния в порядке' }), clear)); return; }
-  out.append(h('div', { class: 'row', style: 'margin:6px 0;justify-content:space-between' }, h('div', { class: 'meta', text: `Замечаний: ${lyIssues.length}` }), clear));
+  if (!lyIssues.length) { out.append(h('div', { class: 'row', style: 'margin-top:6px;justify-content:space-between' }, h('div', { class: 'meta ok', text: '✅ Расстояния в порядке' }), clear)); updateNavEmpty(); return; }
+  const fixAll = fixable.length ? h('button', { text: 'Выровнять всё', onclick: () => act({ type: 'moveNodes', items: fixable.flatMap((i) => i.layoutFix.items) }) }) : null; // отмена — в тосте Figma или Cmd+Z
+  out.append(h('div', { class: 'row', style: 'margin:6px 0;gap:8px' }, h('div', { class: 'meta', text: `Замечаний: ${lyIssues.length}` }), h('span', { class: 'grow' }), fixAll, clear));
   lyIssues.forEach((i) => out.append(h('div', { class: 'issue warn' },
     h('div', { class: 'ihead', style: 'cursor:default' },
       h('span', { class: 'sev', text: '▲' }),
@@ -1701,25 +1840,33 @@ function lyRender() {
         h('div', { class: 'row', style: 'margin-top:6px' },
           i.id ? h('button', { class: 'sm', text: 'Показать', onclick: () => send({ type: 'select', id: i.id }) }) : null,
           i.layoutFix ? h('button', { text: i.layoutFix.label, onclick: () => act({ type: 'moveNodes', items: i.layoutFix.items }) }) : null))))));
+  updateNavEmpty();
 }
-function lyScan() { if (!validateAll()) { const bad = document.querySelector('#tab-nav input.bad'); if (bad) bad.focus(); return; } $('lyOut').textContent = 'Проверяю…'; send({ type: 'layoutScan', settings: read() }); }
+function lyScan() { if (!validateAll()) { const bad = document.querySelector('#tab-nav input.bad'); if (bad) bad.focus(); return; } $('lyOut').textContent = 'Проверяю…'; navSeen(); updateNavEmpty(); send({ type: 'layoutScan', settings: read() }); }
 $('lyScan').onclick = lyScan;
-$('lyFix').onclick = () => {
-  const items = (lyIssues || []).flatMap((i) => (i.layoutFix ? i.layoutFix.items : []));
-  inlineConfirm($('lyFix'), `Будет сдвинуто слоёв: ${new Set(items.map((x) => x.id)).size} (фреймы, кнопки над ними и блоки навигации). Сдвиги нескольких замечаний складываются. После можно нажать «Отменить» в уведомлении или Cmd+Z.`, () => act({ type: 'moveNodes', items }), 'Выровнять');
-};
 
 // ----- Навигация по ряду -----
 function levelClass(el, level) { el.className = 'meta' + (level === 'ok' ? ' ok' : level === 'warn' ? ' warnt' : level === 'error' ? ' errt' : ''); }
 let navDefaults = {};
-const NAV_FIELDS = { descKey: 'fnDesc', linkCardKey: 'fnCard', linkKey: 'fnLink', btnKey: 'fnBtn' };
+const NAV_FIELDS = { descKey: 'fnDesc', linkCardKey: 'fnCard', btnKey: 'fnBtn' };
+// Вид блока: «Мои компоненты» (как работал плагин раньше, по умолчанию) или «Простой вид» — плагин рисует блок сам
+const NAV_MODE_HINT = { components: 'Блок собирается из компонентов вашей дизайн-системы', simple: 'Плагин сам нарисует заголовок, ссылки и кнопку возврата из обычных фреймов и текста — компоненты не нужны' };
+const navMode = () => (ui.navMode === 'simple' ? 'simple' : 'components');
+function setNavMode(m, persist) {
+  ui.navMode = m === 'simple' ? 'simple' : 'components';
+  document.querySelectorAll('input[name=navMode]').forEach((r) => { r.checked = r.value === ui.navMode; });
+  $('navCompRows').hidden = ui.navMode === 'simple'; $('fnCompReset').hidden = ui.navMode === 'simple';
+  $('navModeHint').textContent = NAV_MODE_HINT[ui.navMode];
+  if (persist) saveUi();
+}
+document.querySelectorAll('input[name=navMode]').forEach((r) => r.addEventListener('change', () => setNavMode(r.value, true)));
 const navComp = () => Object.fromEntries(Object.entries(NAV_FIELDS).map(([k, id]) => [k, $(id).value.trim()]));
 function fillNavComp() { for (const [k, id] of Object.entries(NAV_FIELDS)) $(id).value = (ui.navComp && ui.navComp[k]) || navDefaults[k] || ''; }
 Object.values(NAV_FIELDS).forEach((id) => $(id).addEventListener('change', () => { ui.navComp = navComp(); saveUi(); }));
 document.querySelectorAll('[data-pick]').forEach((b) => b.onclick = () => send({ type: 'navPick', field: b.dataset.pick }));
 $('fnCompReset').onclick = () => { ui.navComp = null; fillNavComp(); saveUi(); };
-const navOpts = () => ({ name: $('fnName').value.trim(), label: $('fnLabel').value.trim() || 'Вернуться к навигации', showStatus: $('fnStatus').checked, comp: navComp(), align: $('fnAlign').checked, layout: { navGap: $('navGap').value.trim(), frameGap: $('frameGap').value.trim(), rowGap: $('rowGap').value.trim() } });
-$('fnDo').onclick = () => { $('fnMsg').textContent = 'Строю навигацию…'; act({ type: 'navBuild', opts: navOpts() }); };
+const navOpts = () => ({ mode: navMode(), name: $('fnName').value.trim(), label: $('fnLabel').value.trim() || 'Вернуться к навигации', showStatus: $('fnStatus').checked, comp: navComp(), align: $('fnAlign').checked, layout: { navGap: $('navGap').value.trim(), frameGap: $('frameGap').value.trim(), rowGap: $('rowGap').value.trim() } });
+$('fnDo').onclick = () => { $('fnMsg').textContent = 'Строю навигацию…'; navSeen(); updateNavEmpty(); act({ type: 'navBuild', opts: navOpts() }); };
 $('fnLabel').addEventListener('change', () => { ui.navLabel = $('fnLabel').value.trim(); saveUi(); });
 $('fnStatus').addEventListener('change', () => { ui.navStatus = $('fnStatus').checked; saveUi(); });
 $('fnAlign').addEventListener('change', () => { ui.navAlign = $('fnAlign').checked; saveUi(); });
@@ -1742,7 +1889,7 @@ function showPreview(m) {
 $('mulData').addEventListener('input', requestPreview);
 $('mulDo').onclick = () => {
   const gap = $('mulGap').value.trim();
-  if (gap !== '' && isNaN(Number(gap))) { $('mulOut').textContent = 'Отступ должен быть числом.'; return; }
+  if (gap !== '' && isNaN(Number(gap))) { $('mulOut').textContent = 'Отступ должен быть числом'; return; }
   $('mulOut').textContent = 'Создаю…'; act({ type: 'multiply', data: $('mulData').value, gap });
 };
 
@@ -1934,7 +2081,7 @@ matchMedia('(min-width: 720px)').addEventListener('change', () => { if (hasResul
   function renderDetail() {
     const d = $('spDetail'); d.textContent = '';
     const g = SP.groups.find((x) => x.key === SP.sel);
-    if (!g) { d.append(h('div', { class: 'empty', style: 'margin:auto' }, h('b', { text: SP.scanned ? (SP.groups.length ? 'Выбери слово слева' : 'Ошибок нет') : 'Здесь появятся подробности' }), SP.scanned ? '' : 'Нажми «Проверить правописание»')); return; }
+    if (!g) { d.append(h('div', { class: 'empty' }, h('b', { text: SP.scanned ? (SP.groups.length ? 'Выбери слово слева' : 'Ошибок нет') : 'Здесь появятся подробности' }), SP.scanned ? '' : 'Нажми «Проверить правописание»')); return; }
     const sug = suggestions(g);
     if (!SP.pick && sug[0]) SP.pick = sug[0];
     const idx = SP.groups.indexOf(g);
@@ -1943,8 +2090,7 @@ matchMedia('(min-width: 720px)').addEventListener('change', () => { if (hasResul
     pane.append(h('div', { class: 'dtop' }, h('span', { class: 'sevpill ' + (g.type === 'mixed' ? 'warn' : 'error'), text: g.type === 'mixed' ? 'Смешаны алфавиты' : 'Опечатка' }), h('span', { class: 'grp2', text: `${g.occ.length} ${plural(g.occ.length, 'вхождение', 'вхождения', 'вхождений')}` }), h('span', { class: 'grow' }),
       h('button', { class: 'ico', title: 'Предыдущее', 'aria-label': 'Предыдущее', disabled: idx <= 0, onclick: () => select(SP.groups[idx - 1].key) }, icon('left')),
       h('button', { class: 'ico', title: 'Следующее', 'aria-label': 'Следующее', disabled: idx >= SP.groups.length - 1, onclick: () => select(SP.groups[idx + 1].key) }, icon('right'))));
-    pane.append(h('div', null, h('h2', { class: 'mono', text: g.word }),
-      g.type === 'mixed' ? h('p', { class: 'why', text: 'В слове вперемешку русские и латинские буквы — часто это опечатка из-за похожих символов (a, e, o, p, c, x).' }) : h('p', { class: 'why', text: 'Слова нет в словаре. Если это название, термин или имя — добавь его в словарь, и оно больше не будет отмечаться.' })));
+    pane.append(h('div', null, h('h2', { class: 'mono', text: g.word })));
     const box = h('div', { class: 'box' }, h('div', { class: 'k', text: 'Чем заменить' }));
     const chips = h('div', { class: 'sug' });
     sug.forEach((s) => chips.append(h('button', { 'aria-pressed': SP.pick === s, text: s, onclick: () => { SP.pick = s; input.value = s; chips.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', b.textContent === s)); } })));
@@ -1962,7 +2108,7 @@ matchMedia('(min-width: 720px)').addEventListener('change', () => { if (hasResul
       h('div', { class: 't' }, ctx(o), h('div', { class: 'lay', text: o.layer + (o.frame ? ' · ' + o.frame : '') })),
       h('button', { class: 'ghost sm', title: 'Показать на холсте', onclick: () => send({ type: 'select', id: o.id }) }, icon('target', 14)),
       h('button', { class: 'sm', onclick: () => { const to = input.value.trim(); if (!to) { stat('Выбери или впиши вариант'); return; } applyTo([o], to); } }, 'Исправить'))));
-    if (g.occ.length > 50) occ.append(h('div', { class: 'o' }, h('span', { class: 'meta', text: `…и ещё ${g.occ.length - 50}. «Исправить везде» заменит все.` })));
+    if (g.occ.length > 50) occ.append(h('div', { class: 'o' }, h('span', { class: 'meta', text: `…и ещё ${g.occ.length - 50}. «Исправить везде» заменит все` })));
     pane.append(h('div', null, h('div', { class: 'gt', text: 'Где встречается' }), occ));
     d.append(pane);
   }

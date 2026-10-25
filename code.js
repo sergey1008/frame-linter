@@ -31,7 +31,7 @@ const DEFAULTS = {
 const DEFAULT_NAME_RE = /^(Frame|Group|Rectangle|Ellipse|Line|Vector|Polygon|Star|Section|Component|Instance|Slice|Boolean|Union|Subtract|Intersect|Exclude|Image)\s*\d*$/i;
 
 // Версия плагина и репозиторий для проверки обновлений. Менять версию: node tools/bump.mjs 1.1.0 "что нового".
-const PLUGIN_VERSION = '1.1.0';
+const PLUGIN_VERSION = '1.2.0';
 const UPDATE_REPO = 'sergey1008/frame-linter';
 
 figma.showUI(__html__, { width: 900, height: 660, themeColors: true });
@@ -61,17 +61,17 @@ function applyWin() {
 (async () => {
   const saved = await figma.clientStorage.getAsync('settings-v6');
   const ui = (await figma.clientStorage.getAsync('ui-v1')) || {};
-  let skipped = [];
+  let skipped = [], skippedValues = [];
   try { skipped = JSON.parse(figma.root.getPluginData('skipped') || '[]'); } catch (e) {}
+  try { skippedValues = JSON.parse(figma.root.getPluginData('skippedValues') || '[]'); } catch (e) {}
   if (ui.w && ui.h) figma.ui.resize(clampSize(ui.w, ui.h).w, clampSize(ui.w, ui.h).h);
   if (ui.w && ui.h) WIN.size = clampSize(ui.w, ui.h);
   const winSaved = (await figma.clientStorage.getAsync('win-v1')) || {};
   WIN.dock = ['left', 'right', 'bottom'].includes(winSaved.dock) ? winSaved.dock : null;
-  const ai = (await figma.clientStorage.getAsync('ai-v1')) || {};
   const dictMe = (await figma.clientStorage.getAsync('dict-v1')) || [];
   let dictFile = [];
   try { dictFile = JSON.parse(figma.root.getPluginData('spellDict') || '[]'); } catch (e) {}
-  figma.ui.postMessage({ type: 'settings', settings: Object.assign({}, DEFAULTS, saved), ui, skipped, navDefaults: NAV_DEFAULTS, ai, dict: { me: dictMe, file: dictFile }, version: PLUGIN_VERSION, repo: UPDATE_REPO });
+  figma.ui.postMessage({ type: 'settings', settings: Object.assign({}, DEFAULTS, saved), ui, skipped, skippedValues, navDefaults: NAV_DEFAULTS, dict: { me: dictMe, file: dictFile }, version: PLUGIN_VERSION, repo: UPDATE_REPO });
   postSelection();
   applyWin();
 })();
@@ -128,33 +128,12 @@ async function componentNameFromSelection() {
   return '';
 }
 
-function parseSse(text) {
-  let out = '';
-  for (const line of String(text).split('\n')) {
-    if (!line.startsWith('data:')) continue;
-    try {
-      const ev = JSON.parse(line.slice(5));
-      if (ev.type === 'delta') out += ev.content || '';
-      else if (ev.type === 'error') throw new Error('шлюз: ' + (ev.detail || 'error'));
-    } catch (e) { if (e instanceof Error && e.message.startsWith('шлюз')) throw e; }
-  }
-  return out.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-}
-
 figma.ui.onmessage = async (msg) => {
   if (msg.type === 'run') {
     await figma.clientStorage.setAsync('settings-v6', msg.settings);
     // «Перепроверить»: те же корни, что и в прошлый раз, даже если выделение сменилось (например, после клика по замечанию)
     await runAndPost(msg.settings, msg.reuse && lastRun && lastRun.rootIds ? lastRun.rootIds : null);
     await setupLive(msg.settings);
-  } else if (msg.type === 'resetSettings') {
-    await figma.clientStorage.setAsync('settings-v6', DEFAULTS);
-    const dictMe = (await figma.clientStorage.getAsync('dict-v1')) || [];
-    let dictFile = [];
-    try { dictFile = JSON.parse(figma.root.getPluginData('spellDict') || '[]'); } catch (e) {}
-    figma.ui.postMessage({ type: 'settings', settings: Object.assign({}, DEFAULTS), navDefaults: NAV_DEFAULTS, dict: { me: dictMe, file: dictFile } });
-    await setupLive(Object.assign({}, DEFAULTS));
-    figma.notify('Настройки сброшены');
   } else if (msg.type === 'dictSave') {
     const words = [...new Set((msg.words || []).map(String).filter(Boolean))].slice(0, 5000);
     if (msg.scope === 'file') { try { figma.root.setPluginData('spellDict', JSON.stringify(words)); quiet(); } catch (e) { figma.notify('Не удалось сохранить словарь файла'); } }
@@ -202,23 +181,6 @@ figma.ui.onmessage = async (msg) => {
     figma.ui.postMessage({ type: 'spellTexts', partial: true, ids, items: fresh });
     figma.ui.postMessage({ type: 'spellFixed', ok, failed });
     if (ok) notifyUndo(`Исправлено слов: ${ok}` + (failed ? `, пропущено: ${failed}` : ''));
-  } else if (msg.type === 'aiPing') {
-    // запросы к шлюзу идём из основного потока плагина: у окна плагина нет домена, и шлюз не отвечает на CORS-предзапрос
-    const base = String(msg.url || '').replace(/\/+$/, '');
-    if (typeof fetch !== 'function') { figma.ui.postMessage({ type: 'aiPingResult', ok: false, nofetch: true, error: 'fetch недоступен в основном потоке' }); return; }
-    try {
-      const hdr = { 'Content-Type': 'application/json' };
-      if (msg.key) hdr.Authorization = 'Bearer ' + msg.key;
-      const h = await fetch(base + '/healthz');
-      if (!h.ok) throw new Error('healthz: HTTP ' + h.status);
-      const r = await fetch(base + '/api/llm/chat', { method: 'POST', headers: hdr, body: JSON.stringify({ messages: [{ role: 'system', content: 'Отвечай одним словом.' }, { role: 'user', content: 'Исправь опечатку в слове: приветт' }] }) });
-      const text = await r.text();
-      if (!r.ok) throw new Error('шлюз ответил HTTP ' + r.status + ': ' + text.slice(0, 120));
-      figma.ui.postMessage({ type: 'aiPingResult', ok: true, sample: parseSse(text) });
-    } catch (e) { figma.ui.postMessage({ type: 'aiPingResult', ok: false, error: String((e && e.message) || e) }); }
-  } else if (msg.type === 'saveAi') {
-    // ключ лежит только в локальном хранилище плагина на этом компьютере — не в файле и не в общих настройках
-    await figma.clientStorage.setAsync('ai-v1', { url: msg.url || '', key: msg.key || '', model: msg.model || '' });
   } else if (msg.type === 'saveSettings') {
     await figma.clientStorage.setAsync('settings-v6', msg.settings);
   } else if (msg.type === 'selectMany') {
@@ -232,18 +194,31 @@ figma.ui.onmessage = async (msg) => {
     ignoreSelUntil = Date.now() + 900;
     figma.currentPage.selection = here;
     figma.viewport.scrollAndZoomIntoView(here);
-    figma.notify(`Выделено слоёв: ${here.length}`);
+    figma.notify(`Выделено слоёв: ${here.length}` + (here.length < nodes.length ? `, остальные (${nodes.length - here.length}) на других страницах` : ''));
   } else if (msg.type === 'cancel') {
     cancelled = true;
   } else if (msg.type === 'saveUi') {
     await figma.clientStorage.setAsync('ui-v1', msg.ui);
   } else if (msg.type === 'saveSkipped') {
     try { figma.root.setPluginData('skipped', JSON.stringify((msg.keys || []).slice(-1500))); } catch (e) {}
+  } else if (msg.type === 'saveSkippedValues') {
+    // «Пропустить все»: помним правило и текст замечания, а не id слоёв (их могут быть тысячи)
+    try { figma.root.setPluginData('skippedValues', JSON.stringify((msg.keys || []).slice(-300))); } catch (e) {}
+  } else if (msg.type === 'skipToast') {
+    // «Пропустить все» ничего не меняет в файле, но отмену даём так же, как у правок: кнопка в тосте Figma
+    figma.notify(`Пропущено замечаний: ${msg.count}`, { timeout: 8000, button: { text: 'Отменить', action: () => { figma.ui.postMessage({ type: 'undoSkip', key: msg.key }); return false; } } });
+  } else if (msg.type === 'preview') {
+    let bytes = null;
+    try {
+      const n = await figma.getNodeByIdAsync(msg.id);
+      if (n && !n.removed && 'exportAsync' in n) bytes = await n.exportAsync({ format: 'PNG', constraint: { type: 'WIDTH', value: 640 } });
+    } catch (e) {}
+    figma.ui.postMessage({ type: 'previewResult', id: msg.id, bytes });
   } else if (msg.type === 'navPick') {
     let n = figma.currentPage.selection[0] || null;
     if (n && n.type === 'INSTANCE') n = await n.getMainComponentAsync();
     if (n && n.type === 'COMPONENT_SET') n = n.defaultVariant;
-    if (!n || n.type !== 'COMPONENT') figma.ui.postMessage({ type: 'navPicked', field: msg.field, error: 'Выдели на холсте инстанс нужного компонента (или сам компонент).' });
+    if (!n || n.type !== 'COMPONENT') figma.ui.postMessage({ type: 'navPicked', field: msg.field, error: 'Выдели на холсте инстанс нужного компонента (или сам компонент)' });
     else figma.ui.postMessage({ type: 'navPicked', field: msg.field, key: n.key, name: n.parent && n.parent.type === 'COMPONENT_SET' ? `${n.parent.name} · ${n.name}` : n.name });
   } else if (msg.type === 'win') {
     if (msg.action === 'collapse') WIN.collapsed = true;
@@ -331,7 +306,7 @@ figma.ui.onmessage = async (msg) => {
     await checkpoint('привязка токенов', msg.items.length);
     const r = await bindTokens(msg.items);
     figma.ui.postMessage({ type: 'bound', done: r.done });
-    notifyUndo(`Токенов привязано: ${r.done.length}` + (r.failed ? `, не удалось: ${r.failed}` : ''));
+    notifyUndo(`Токенов привязано: ${r.done.length}` + (r.failed ? `, не удалось: ${r.failed} (${r.why})` : ''));
   } else if (msg.type === 'refreshTokens') {
     tokenCache = null; tokenForce = true;
     try { await figma.clientStorage.setAsync('tok-v1', null); } catch (e) {}
@@ -370,7 +345,7 @@ figma.ui.onmessage = async (msg) => {
   } else if (msg.type === 'select') {
     const node = await figma.getNodeByIdAsync(msg.id);
     if (!node || node.removed) {
-      figma.notify('Слой не найден — возможно, он удалён. Запусти проверку заново.');
+      figma.notify('Слой не найден — возможно, он удалён. Запусти проверку заново');
       return;
     }
     let page = node;
@@ -591,6 +566,9 @@ function add(ctx, node, severity, rule, message, rename, fixes) {
   let top = node;
   while (top.parent && top.parent.type !== 'PAGE' && top.parent.type !== 'DOCUMENT' && top.parent.type !== 'SECTION') top = top.parent;
   issue.frame = top.name;
+  const path = [];
+  for (let p = node.parent; p && p.type !== 'PAGE' && p.type !== 'DOCUMENT'; p = p.parent) path.unshift(String(p.name).slice(0, 40));
+  issue.path = path.slice(-4);
   if (DEFAULT_NAME_RE.test(top.name)) {
     // верхний контейнер безымянный («Frame 034875») — показываем ближайший именованный фрейм внутри него
     const chain = [];
@@ -625,6 +603,10 @@ function suggestDefault(node) {
   }
 }
 const toKebab = (n) => n.trim().replace(/([a-z0-9])([A-Z])/g, '$1-$2').replace(/[\s_]+/g, '-').replace(/[^A-Za-z0-9-]/g, '').replace(/-+/g, '-').toLowerCase();
+// Слова из имени: границы — любые не-буквы/цифры и переход из строчной в заглавную (mainHeader → main Header)
+const nameWords = (n) => n.replace(/([a-z0-9])([A-Z])/g, '$1 $2').split(/[^A-Za-z0-9]+/).filter(Boolean);
+const toPascal = (n) => nameWords(n).map((w) => w[0].toUpperCase() + w.slice(1)).join('');
+const toCamel = (n) => { const p = toPascal(n); return p ? p[0].toLowerCase() + p.slice(1) : ''; };
 function toPascalPath(n) {
   return n.split('/').map((part) =>
     part.split(/[^A-Za-z0-9]+/).filter(Boolean).map((w) => w[0].toUpperCase() + w.slice(1)).join('')
@@ -640,8 +622,9 @@ function checkName(node, ctx) {
     return;
   }
   if (isBlock && ctx.blockRe && !ctx.blockRe.test(node.name)) {
-    const k = toKebab(node.name);
-    add(ctx, node, 'error', 'name/pattern', `Имя блока «${node.name}» не соответствует шаблону ${ctx.s.blockPattern}`, { suggest: ctx.blockRe.test(k) ? k : '' });
+    // предлагаем первое имя из стандартных стилей, которое подходит под шаблон (kebab-case, camelCase, PascalCase)
+    const suggest = [toKebab(node.name), toCamel(node.name), toPascal(node.name)].find((c) => c && ctx.blockRe.test(c)) || '';
+    add(ctx, node, 'error', 'name/pattern', `Имя блока «${node.name}» не соответствует шаблону ${ctx.s.blockPattern}`, { suggest });
   }
   if (node.name !== node.name.trim() || /\s{2,}/.test(node.name)) {
     add(ctx, node, 'warn', 'name/whitespace', 'Лишние пробелы в имени', { suggest: node.name.trim().replace(/\s{2,}/g, ' ') });
@@ -959,8 +942,30 @@ function fixColor(ctx, prop, label, paints, kinds, group) {
   const hex = toHex(p.color);
   return { prop, label: `${label} ${hex}`, value: hex, color: p.color, group: `${group}:${hex}`, cands: strip(colorCands(ctx, p.color, kinds)) };
 }
+// Кандидаты и ближайшие токены считаются один раз на значение: у тысяч слоёв они одинаковые.
+function floatInfo(ctx, num, kinds) {
+  const key = num + '|' + kinds.join();
+  ctx.fmemo = ctx.fmemo || new Map();
+  if (!ctx.fmemo.has(key)) {
+    const cands = strip(floatCands(ctx, num, kinds));
+    ctx.fmemo.set(key, { cands, near: cands.length ? [] : nearFloat(ctx, num, kinds) });
+  }
+  return ctx.fmemo.get(key);
+}
+// Ближайшие токены снизу и сверху, когда в допуске ничего нет: только подсказка, привязать их кнопкой нельзя.
+function nearFloat(ctx, num, kinds) {
+  if (!ctx.tokens) return [];
+  let below = null, above = null;
+  for (const t of ctx.tokens) {
+    if (t.type !== 'FLOAT' || typeof t.value !== 'number' || !scopeOk(t, kinds)) continue;
+    if (t.value < num) { if (!below || t.value > below.value || (t.value === below.value && t.primitive < below.primitive)) below = t; }
+    else if (t.value > num) { if (!above || t.value < above.value || (t.value === above.value && t.primitive < above.primitive)) above = t; }
+  }
+  return [below, above].filter(Boolean).map((t) => ({ name: t.name, label: t.value + 'px', diff: Math.round((t.value - num) * 100) / 100 }));
+}
 function fixNum(ctx, prop, label, num, kinds, group) {
-  return { prop, label: `${label} ${num}px`, value: num, group: `${group}:${num}`, cands: strip(floatCands(ctx, num, kinds)) };
+  const info = floatInfo(ctx, num, kinds);
+  return { prop, label: `${label} ${num}px`, value: num, group: `${group}:${num}`, cands: info.cands, near: info.near };
 }
 
 const FILL_KINDS = ['ALL_FILLS', 'FRAME_FILL', 'SHAPE_FILL'];
@@ -1052,16 +1057,18 @@ const closeColor = (a, b) => Math.abs(a.r - b.r) + Math.abs(a.g - b.g) + Math.ab
 
 async function bindTokens(items) {
   const done = [];
-  let failed = 0;
+  const reasons = new Map(); // причина → сколько раз
+  const fail = (why) => reasons.set(why, (reasons.get(why) || 0) + 1);
   for (const it of items) {
     try {
       const node = await figma.getNodeByIdAsync(it.id);
       let v = await figma.variables.getVariableByIdAsync(it.varId).catch(() => null);
       if (!v && tokenKeyById.get(it.varId)) { try { v = await figma.variables.importVariableByKeyAsync(tokenKeyById.get(it.varId)); } catch (e) {} }
-      if (!node || node.removed || !v) { failed++; continue; }
+      if (!node || node.removed) { fail('слой удалён'); continue; }
+      if (!v) { fail('переменная не найдена (обнови токены)'); continue; }
       if (it.prop === 'fills' || it.prop === 'strokes') {
         const paints = node[it.prop];
-        if (isMixed(paints)) { failed++; continue; }
+        if (isMixed(paints)) { fail('у слоя разные заливки/обводки'); continue; }
         node[it.prop] = paints.map((p) =>
           p.type === 'SOLID' && p.visible !== false && !(p.boundVariables && p.boundVariables.color) && closeColor(p.color, it.color)
             ? figma.variables.setBoundVariableForPaint(p, 'color', v) : p);
@@ -1071,9 +1078,11 @@ async function bindTokens(items) {
         node.setBoundVariable(it.prop, v);
       }
       done.push({ id: it.id, prop: it.prop });
-    } catch (e) { failed++; }
+    } catch (e) { fail(String((e && e.message) || e).slice(0, 80)); }
   }
-  return { done, failed };
+  const failed = [...reasons.values()].reduce((a, n) => a + n, 0);
+  const why = [...reasons].sort((a, b) => b[1] - a[1]).map(([r, n]) => `${r}: ${n}`).join('; ');
+  return { done, failed, why };
 }
 
 
@@ -1339,10 +1348,10 @@ async function setTextValue(t, value) {
 
 async function multiplyFrame(data, gap) {
   const tpl = figma.currentPage.selection[0];
-  if (!tpl || !('clone' in tpl) || !('findAll' in tpl)) return 'Выдели один шаблонный фрейм (внутри текстовые слои с именами вида #title, #price).';
+  if (!tpl || !('clone' in tpl) || !('findAll' in tpl)) return 'Выдели один шаблонный фрейм (внутри текстовые слои с именами вида #title, #price)';
   let rows;
   try { rows = parseTable(data); } catch (e) { return 'Не удалось разобрать данные: ' + e.message; }
-  if (!rows.length) return 'Нет строк данных: нужна шапка и хотя бы одна строка (CSV/TSV) либо JSON-массив.';
+  if (!rows.length) return 'Нет строк данных: нужна шапка и хотя бы одна строка (CSV/TSV) либо JSON-массив';
   rows = rows.slice(0, 200);
   await checkpoint('размножение по данным', rows.length);
 
@@ -1367,8 +1376,9 @@ async function multiplyFrame(data, gap) {
   figma.currentPage.selection = clones;
   figma.viewport.scrollAndZoomIntoView(clones);
   quiet();
-  let msg = `Создано копий: ${clones.length}, подставлено значений: ${filled}.`;
-  if (unmatched.size) msg += ` Для колонок нет текстовых слоёв #имя: ${[...unmatched].join(', ')}.`;
+  const msgParts = [`Создано копий: ${clones.length}, подставлено значений: ${filled}`];
+  if (unmatched.size) msgParts.push(`Для колонок нет текстовых слоёв #имя: ${[...unmatched].join(', ')}`);
+  const msg = msgParts.join('. ');
   notifyUndo(msg);
   return msg;
 }
@@ -1376,22 +1386,22 @@ async function multiplyFrame(data, gap) {
 // Предпросмотр размножения: сколько копий получится и какие поля совпали с колонками.
 function multiplyPreview(data) {
   const tpl = figma.currentPage.selection[0];
-  if (!tpl || !('clone' in tpl) || !('findAll' in tpl)) return { ok: false, level: 'warn', text: 'Выдели один шаблонный фрейм.' };
-  if (!String(data).trim()) return { ok: false, level: 'info', text: 'Вставь данные — покажу, сколько копий получится.' };
+  if (!tpl || !('clone' in tpl) || !('findAll' in tpl)) return { ok: false, level: 'warn', text: 'Выдели один шаблонный фрейм' };
+  if (!String(data).trim()) return { ok: false, level: 'info', text: 'Вставь данные — покажу, сколько копий получится' };
   let rows;
   try { rows = parseTable(data); } catch (e) { return { ok: false, level: 'error', text: 'Не удалось разобрать данные: ' + e.message }; }
-  if (!rows.length) return { ok: false, level: 'warn', text: 'Нужна шапка и хотя бы одна строка данных.' };
+  if (!rows.length) return { ok: false, level: 'warn', text: 'Нужна шапка и хотя бы одна строка данных' };
   const fields = [...new Set(tpl.findAll((n) => n.type === 'TEXT' && n.name.startsWith('#')).map((t) => t.name.slice(1).trim().toLowerCase()))];
   const cols = Object.keys(rows[0]);
   const low = cols.map((c) => c.toLowerCase());
   const missing = fields.filter((f) => !low.includes(f));
   const unused = cols.filter((c) => !fields.includes(c.toLowerCase()));
-  const parts = [`Будет копий: ${Math.min(rows.length, 200)}${rows.length > 200 ? ` (из ${rows.length}, лимит 200)` : ''}.`];
-  parts.push(fields.length ? `Полей в шаблоне: ${fields.map((f) => '#' + f).join(', ')}.` : 'В шаблоне нет текстовых слоёв с именами вида #title — копии будут без подстановки.');
-  if (missing.length) parts.push(`Нет колонки для: ${missing.map((f) => '#' + f).join(', ')}.`);
-  if (unused.length) parts.push(`Колонки без слоя: ${unused.join(', ')}.`);
+  const parts = [`Будет копий: ${Math.min(rows.length, 200)}${rows.length > 200 ? ` (из ${rows.length}, лимит 200)` : ''}`];
+  parts.push(fields.length ? `Полей в шаблоне: ${fields.map((f) => '#' + f).join(', ')}` : 'В шаблоне нет текстовых слоёв с именами вида #title — копии будут без подстановки');
+  if (missing.length) parts.push(`Нет колонки для: ${missing.map((f) => '#' + f).join(', ')}`);
+  if (unused.length) parts.push(`Колонки без слоя: ${unused.join(', ')}`);
   const level = !fields.length || missing.length || unused.length ? 'warn' : 'ok';
-  return { ok: true, level, text: parts.join(' ') };
+  return { ok: true, level, text: parts.join('. ') };
 }
 
 // ---------- Навигация по ряду ----------
@@ -1553,9 +1563,60 @@ async function navSetBackIcons(btn, cfg, cache, localAll, warns) {
   try { btn.setProperties(next); } catch (e) { warns.add('не удалось поменять иконки кнопки: ' + ((e && e.message) || e)); }
 }
 
+// ---------- «Простой вид»: блок навигации из обычных фреймов и текста, если нужных компонентов в дизайн-системе нет ----------
+const SIMPLE_C = { ink: { r: 0.17, g: 0.176, b: 0.18 }, link: { r: 0, g: 0.373, b: 0.976 }, line: { r: 0.9, g: 0.906, b: 0.922 }, white: { r: 1, g: 1, b: 1 } };
+const simplePaint = (c) => [{ type: 'SOLID', color: c }];
+async function simpleLoadFonts() {
+  await figma.loadFontAsync({ family: 'Inter', style: 'Regular' });
+  await figma.loadFontAsync({ family: 'Inter', style: 'Medium' });
+}
+function simpleText(str, size, medium, color, underline) {
+  const t = figma.createText();
+  t.fontName = { family: 'Inter', style: medium ? 'Medium' : 'Regular' };
+  t.fontSize = size; t.characters = str; t.fills = simplePaint(color);
+  if (underline) t.textDecoration = 'UNDERLINE';
+  return t;
+}
+// Заголовок ряда: помечен как часть навигации, поэтому при пересборке текст сохраняется так же, как у компонента
+function simpleDesc() {
+  const f = figma.createFrame();
+  f.name = 'Заголовок ряда'; f.fills = []; f.layoutMode = 'VERTICAL';
+  f.resize(320, 10); f.primaryAxisSizingMode = 'AUTO'; f.counterAxisSizingMode = 'FIXED';
+  const t = simpleText('Название ряда', 24, true, SIMPLE_C.ink);
+  t.name = 'Название'; f.appendChild(t);
+  t.layoutSizingHorizontal = 'FILL'; t.textAutoResize = 'HEIGHT';
+  f.setSharedPluginData(NAV_NS, 'navPart', 'desc');
+  return f;
+}
+// Блок со ссылками: по одной строке на фрейм ряда
+function simpleCard(n) {
+  const f = figma.createFrame();
+  f.name = 'Навигация'; f.layoutMode = 'VERTICAL'; f.itemSpacing = 10;
+  f.paddingLeft = f.paddingRight = 20; f.paddingTop = f.paddingBottom = 16;
+  f.cornerRadius = 12; f.fills = simplePaint(SIMPLE_C.white); f.strokes = simplePaint(SIMPLE_C.line); f.strokeWeight = 1;
+  f.resize(320, 10); f.primaryAxisSizingMode = 'AUTO'; f.counterAxisSizingMode = 'FIXED';
+  for (let i = 0; i < n; i++) {
+    const l = figma.createFrame();
+    l.name = 'Ссылка'; l.fills = []; l.layoutMode = 'HORIZONTAL'; l.primaryAxisSizingMode = 'AUTO'; l.counterAxisSizingMode = 'AUTO';
+    l.appendChild(simpleText('Ссылка', 14, false, SIMPLE_C.link, true));
+    f.appendChild(l);
+  }
+  return f;
+}
+// Кнопка возврата над фреймом
+function simpleBack() {
+  const f = figma.createFrame();
+  f.name = 'Кнопка возврата'; f.layoutMode = 'HORIZONTAL'; f.primaryAxisSizingMode = 'AUTO'; f.counterAxisSizingMode = 'AUTO';
+  f.paddingLeft = f.paddingRight = 14; f.paddingTop = f.paddingBottom = 8; f.cornerRadius = 8;
+  f.fills = simplePaint(SIMPLE_C.white); f.strokes = simplePaint(SIMPLE_C.line); f.strokeWeight = 1;
+  f.appendChild(simpleText('Вернуться к навигации', 14, true, SIMPLE_C.ink));
+  return f;
+}
+const isNavDesc = (k) => (k.getSharedPluginData(NAV_NS, 'navPart') === 'desc') || (k.type === 'INSTANCE' && k.name === 'DescriptionCard');
+
 async function navBuild(opts) {
   const { frames: picked } = navCollect();
-  if (!picked.length) return { ok: false, text: 'Выдели фреймы одного ряда (на странице или внутри секции) либо саму секцию с фреймами.' };
+  if (!picked.length) return { ok: false, text: 'Выдели фреймы одного ряда (на странице или внутри секции) либо саму секцию с фреймами' };
   // Если ряд уже имел навигацию, берём в пересборку и остальные его фреймы, чтобы не потерять их кнопки.
   const oldRows = new Set(picked.map(navRowOf).filter(Boolean));
   const frames = picked.slice();
@@ -1570,11 +1631,17 @@ async function navBuild(opts) {
     if (!localList) { await figma.loadAllPagesAsync(); localList = figma.root.findAllWithCriteria({ types: ['COMPONENT', 'COMPONENT_SET'] }); }
     return localList;
   };
-  const descC = await navComponent(cfg.descKey, cache, localAll);
-  const cardC = await navComponent(cfg.linkCardKey, cache, localAll);
-  const btnC = await navComponent(cfg.btnKey, cache, localAll);
-  const missing = [[descC, 'название ряда'], [cardC, 'блок «Навигация»'], [btnC, 'кнопка над фреймом']].filter(([c]) => !c).map(([, n]) => n);
-  if (missing.length) return { ok: false, text: `Не найден компонент: ${missing.join(', ')}. В настройках навигации укажи ключ, имя локального компонента или ссылку на компонент из этого файла. Проще всего: выдели на холсте инстанс нужного компонента и нажми «Из выделения» у его поля (библиотека должна быть подключена к файлу).` };
+  // Режим по умолчанию — «Мои компоненты» (так работал плагин раньше); «Простой вид» рисует блок сам и компонентов не требует.
+  const simple = opts.mode === 'simple';
+  let descC = null, cardC = null, btnC = null;
+  if (simple) await simpleLoadFonts();
+  else {
+    descC = await navComponent(cfg.descKey, cache, localAll);
+    cardC = await navComponent(cfg.linkCardKey, cache, localAll);
+    btnC = await navComponent(cfg.btnKey, cache, localAll);
+  }
+  const missing = simple ? [] : [[descC, 'название ряда'], [cardC, 'блок «Навигация»'], [btnC, 'кнопка над фреймом']].filter(([c]) => !c).map(([, n]) => n);
+  if (missing.length) return { ok: false, text: `Не найден компонент: ${missing.join(', ')}. Выбери «Простой вид» в настройках навигации, чтобы плагин нарисовал блок сам, или укажи ключ, имя локального компонента или ссылку на компонент из этого файла. Проще всего: выдели на холсте инстанс нужного компонента и нажми «Из выделения» у его поля (библиотека должна быть подключена к файлу)` };
 
   await checkpoint('навигация по рядам', frames.length);
   // Пересборка: заполненный DescriptionCard переносим в новый блок, а не создаём заново.
@@ -1585,7 +1652,7 @@ async function navBuild(opts) {
     if (!isNavNode(c) || c.getSharedPluginData(NAV_NS, 'navRole') !== 'panel') continue;
     const rid = c.getSharedPluginData(NAV_NS, 'nav');
     if (!oldRows.has(rid)) continue;
-    const d = c.children.find((k) => k.type === 'INSTANCE' && k.name === 'DescriptionCard') || null;
+    const d = c.children.find(isNavDesc) || null;
     const home = c.parent;
     if (d) home.appendChild(d); // временно выносим, чтобы он не удалился вместе со старым блоком
     keep.set(rid, { desc: d, name: c.name, home, used: false });
@@ -1631,9 +1698,9 @@ async function navBuild(opts) {
     wrapper.name = name; wrapper.fills = []; wrapper.layoutMode = 'VERTICAL'; wrapper.itemSpacing = NAV_CARD_GAP;
     parent.appendChild(wrapper);
     const reused = !!(old && old.desc && !old.desc.removed);
-    const desc = reused ? old.desc : descC.createInstance();
+    const desc = reused ? old.desc : (simple ? simpleDesc() : descC.createInstance());
     wrapper.appendChild(desc);
-    const card = cardC.createInstance(); wrapper.appendChild(card);
+    const card = simple ? simpleCard(row.items.length) : cardC.createInstance(); wrapper.appendChild(card);
     wrapper.resize(card.width, 10);
     wrapper.layoutSizingHorizontal = 'FIXED'; wrapper.layoutSizingVertical = 'HUG';
     desc.layoutSizingHorizontal = 'FILL'; card.layoutSizingHorizontal = 'FILL';
@@ -1647,39 +1714,45 @@ async function navBuild(opts) {
 
     // DescriptionCard: слот списка выключаем, остальное как в компоненте — название ряда заполняют вручную.
     // Перенесённый DescriptionCard не трогаем: в нём уже ваш текст.
-    const slotProp = reused ? null : Object.keys(desc.componentProperties).find((k) => k.startsWith('isListSlot'));
+    const slotProp = reused || simple ? null : Object.keys(desc.componentProperties).find((k) => k.startsWith('isListSlot'));
     if (slotProp) { try { desc.setProperties({ [slotProp]: false }); } catch (e) { warns.add('не удалось выключить слот в DescriptionCard'); } }
 
-    // Ссылки: размножаем ссылку в слоте под число фреймов.
-    const slot = card.findOne((n) => n.type === 'SLOT' && n.name === 'LinksSlot') || card.findOne((n) => n.type === 'SLOT');
-    if (!slot) { cleanup(); return { ok: false, text: 'В компоненте «Навигация» нет слота для ссылок (ожидал слот LinksSlot).' }; }
-    if (!slot.children.length) {
-      linkC = linkC || await navComponent(cfg.linkKey, cache, localAll);
-      if (!linkC) { cleanup(); return { ok: false, text: 'В слоте нет ссылок, а компонент ButtonLink не найден — проверь его ключ.' }; }
-      slot.appendChild(linkC.createInstance());
-    }
-    while (slot.children.length > row.items.length) slot.children[slot.children.length - 1].remove();
-    // clone() внутри слота слот не пополняет — создаём новые ссылки из главного компонента образца.
-    const tpl = slot.children[0];
-    if (slot.children.length < row.items.length && tpl.type === 'INSTANCE') {
-      const main = await tpl.getMainComponentAsync();
-      if (!main) { cleanup(); return { ok: false, text: 'Не удалось найти компонент ссылки в слоте навигации.' }; }
-      const props = {};
-      for (const [k, v] of Object.entries(tpl.componentProperties)) if (v.type !== 'VARIANT') props[k] = v.value;
-      for (let guard = 0; slot.children.length < row.items.length && guard < row.items.length + 5; guard++) {
-        const inst = main.createInstance();
-        slot.appendChild(inst);
-        try { inst.setProperties(props); } catch (e) {}
+    // Ссылки: в простом виде они уже есть в блоке, иначе размножаем ссылку в слоте под число фреймов.
+    let links;
+    if (simple) links = card.children.slice();
+    else {
+      const slot = card.findOne((n) => n.type === 'SLOT' && n.name === 'LinksSlot') || card.findOne((n) => n.type === 'SLOT');
+      if (!slot) { cleanup(); return { ok: false, text: 'В компоненте «Навигация» нет слота для ссылок (ожидал слот LinksSlot)' }; }
+      if (!slot.children.length) {
+        linkC = linkC || await navComponent(cfg.linkKey, cache, localAll);
+        if (!linkC) { cleanup(); return { ok: false, text: 'В слоте блока навигации нет ссылок, а запасной компонент ссылки не найден' }; }
+        slot.appendChild(linkC.createInstance());
       }
+      while (slot.children.length > row.items.length) slot.children[slot.children.length - 1].remove();
+      // clone() внутри слота слот не пополняет — создаём новые ссылки из главного компонента образца.
+      const tpl = slot.children[0];
+      if (slot.children.length < row.items.length && tpl.type === 'INSTANCE') {
+        const main = await tpl.getMainComponentAsync();
+        if (!main) { cleanup(); return { ok: false, text: 'Не удалось найти компонент ссылки в слоте навигации' }; }
+        const props = {};
+        for (const [k, v] of Object.entries(tpl.componentProperties)) if (v.type !== 'VARIANT') props[k] = v.value;
+        for (let guard = 0; slot.children.length < row.items.length && guard < row.items.length + 5; guard++) {
+          const inst = main.createInstance();
+          slot.appendChild(inst);
+          try { inst.setProperties(props); } catch (e) {}
+        }
+      }
+      links = slot.children.slice(0, row.items.length);
+      if (links.length < row.items.length) warns.add(`в слоте только ${links.length} ссылок из ${row.items.length}`);
+
     }
-    const links = slot.children.slice(0, row.items.length);
-    if (links.length < row.items.length) warns.add(`в слоте только ${links.length} ссылок из ${row.items.length}`);
 
     for (let i = 0; i < row.items.length; i++) {
       const f = row.items[i], link = links[i];
       const st = opts.showStatus ? f.getSharedPluginData(NAV_NS, 'status') : '';
-      const tn = link.type === 'INSTANCE' ? link.findOne((n) => n.type === 'TEXT') : null;
-      if (link.type === 'INSTANCE') await navSetText(link, tn, st ? `${f.name} · ${st}` : f.name);
+      const textual = simple || link.type === 'INSTANCE';
+      const tn = textual ? link.findOne((n) => n.type === 'TEXT') : null;
+      if (textual) await navSetText(link, tn, st ? `${f.name} · ${st}` : f.name);
       if (tn && !navSetHyperlink(tn, f.id)) warns.add('не удалось поставить гиперссылку на текст');
       if (!(await navSetClick(link, f.id))) warns.add('не удалось поставить клик в прототипе');
       f.setSharedPluginData(NAV_NS, 'navRow', rowId);
@@ -1691,11 +1764,11 @@ async function navBuild(opts) {
 
     // Кнопка «Вернуться к навигации» над каждым фреймом, по правому краю.
     for (const f of row.items) {
-      const btn = btnC.createInstance();
+      const btn = simple ? simpleBack() : btnC.createInstance();
       parent.appendChild(btn);
       const bt = btn.findOne((n) => n.type === 'TEXT');
-      await navSetText(btn, bt, opts.label || 'Вернуться к навигации');
-      await navSetBackIcons(btn, cfg, cache, localAll, warns);
+      await navSetText(btn, bt, (simple ? '← ' : '') + (opts.label || 'Вернуться к навигации'));
+      if (!simple) await navSetBackIcons(btn, cfg, cache, localAll, warns);
       const g = geo(f);
       if (!(await setPos(btn, g.x + g.w - btn.width, g.y - NAV_BTN_GAP - btn.height))) warns.add('не удалось поставить кнопку над фреймом «' + f.name + '»');
       if (bt && !navSetHyperlink(bt, wrapper.id)) warns.add('не удалось поставить гиперссылку на кнопку');
@@ -1707,21 +1780,24 @@ async function navBuild(opts) {
   }
   } catch (e) {
     cleanup();
-    return { ok: false, text: 'Не удалось построить навигацию, недособранное удалено: ' + ((e && e.message) || e) + ([...keep.values()].some((k) => k.desc) ? '. Заполненные DescriptionCard остались в секции.' : '') };
+    return { ok: false, text: 'Не удалось построить навигацию, недособранное удалено: ' + ((e && e.message) || e) + ([...keep.values()].some((k) => k.desc) ? '. Заполненные DescriptionCard остались в секции' : '') };
   }
   let aligned = '';
   if (opts.align && opts.layout) {
     try {
       const items = layoutScan(opts.layout, frames).flatMap((i) => (i.layoutFix ? i.layoutFix.items : []));
-      if (items.length) { const r = await applyMoves(items); aligned = ` Выровнено слоёв: ${r.done.length}.`; }
-      else aligned = ' Расстояния уже в порядке.';
+      if (items.length) { const r = await applyMoves(items); aligned = `Выровнено слоёв: ${r.done.length}`; }
+      else aligned = 'Расстояния уже в порядке';
     } catch (e) { warns.add('не удалось выровнять расстояния'); }
   }
   const orphan = [...keep.values()].filter((k) => k.desc && !k.used && !k.desc.removed);
   if (orphan.length) warns.add(`осталось DescriptionCard без ряда: ${orphan.length} (лежит в секции, текст сохранён)`);
   quiet();
   figma.viewport.scrollAndZoomIntoView(wrappers.concat(frames));
-  return { ok: true, text: `Навигация готова: рядов ${rows.length}, ссылок ${frames.length}.` + aligned + (warns.size ? ' Внимание: ' + [...warns].join('; ') + '.' : '') };
+  const done = [`Навигация готова: рядов ${rows.length}, ссылок ${frames.length}`];
+  if (aligned) done.push(aligned);
+  if (warns.size) done.push('Внимание: ' + [...warns].join('; '));
+  return { ok: true, text: done.join('. ') };
 }
 
 // ---------- Расстояния: навигация ↔ фреймы, ряд ↔ ряд ----------
@@ -1764,7 +1840,7 @@ function checkLayout(roots, ctx) {
   const all = navTopNodes();
   const panels = all.filter((n) => isNavNode(n) && n.getSharedPluginData(NAV_NS, 'navRole') === 'panel');
   const manual = all.filter((n) => !isNavNode(n) && looksLikeNavBlock(n)); // блоки, собранные вручную
-  const buttons = all.filter((n) => n.type === 'INSTANCE' && (n.name === 'Button' || (isNavNode(n) && n.getSharedPluginData(NAV_NS, 'navRole') === 'back')));
+  const buttons = all.filter((n) => (isNavNode(n) && n.getSharedPluginData(NAV_NS, 'navRole') === 'back') || (n.type === 'INSTANCE' && n.name === 'Button'));
 
   // Кнопка «Вернуться к навигации» принадлежит фрейму, если стоит над ним и не выходит за его ширину.
   const buttonsOf = (f) => {
