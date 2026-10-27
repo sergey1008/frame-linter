@@ -31,7 +31,7 @@ const DEFAULTS = {
 const DEFAULT_NAME_RE = /^(Frame|Group|Rectangle|Ellipse|Line|Vector|Polygon|Star|Section|Component|Instance|Slice|Boolean|Union|Subtract|Intersect|Exclude|Image)\s*\d*$/i;
 
 // Версия плагина и репозиторий для проверки обновлений. Менять версию: node tools/bump.mjs 1.1.0 "что нового".
-const PLUGIN_VERSION = '1.2.0';
+const PLUGIN_VERSION = '1.2.1';
 const UPDATE_REPO = 'sergey1008/frame-linter';
 
 figma.showUI(__html__, { width: 900, height: 660, themeColors: true });
