@@ -1849,11 +1849,11 @@ $('lyScan').onclick = lyScan;
 function levelClass(el, level) { el.className = 'meta' + (level === 'ok' ? ' ok' : level === 'warn' ? ' warnt' : level === 'error' ? ' errt' : ''); }
 let navDefaults = {};
 const NAV_FIELDS = { descKey: 'fnDesc', linkCardKey: 'fnCard', btnKey: 'fnBtn' };
-// Вид блока: «Мои компоненты» (как работал плагин раньше, по умолчанию) или «Простой вид» — плагин рисует блок сам
+// Вид блока: «Простой вид» (по умолчанию) — плагин рисует блок сам — или «Мои компоненты»
 const NAV_MODE_HINT = { components: 'Блок собирается из компонентов вашей дизайн-системы', simple: 'Плагин сам нарисует заголовок, ссылки и кнопку возврата из обычных фреймов и текста — компоненты не нужны' };
-const navMode = () => (ui.navMode === 'simple' ? 'simple' : 'components');
+const navMode = () => (ui.navMode === 'components' ? 'components' : 'simple');
 function setNavMode(m, persist) {
-  ui.navMode = m === 'simple' ? 'simple' : 'components';
+  ui.navMode = m === 'components' ? 'components' : 'simple';
   document.querySelectorAll('input[name=navMode]').forEach((r) => { r.checked = r.value === ui.navMode; });
   $('navCompRows').hidden = ui.navMode === 'simple'; $('fnCompReset').hidden = ui.navMode === 'simple';
   $('navModeHint').textContent = NAV_MODE_HINT[ui.navMode];

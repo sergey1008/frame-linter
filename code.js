@@ -1472,20 +1472,22 @@ function navPreview() {
   return { ok: frames.length > 0, level: 'info', text: '' };
 }
 
-// Компоненты навигации из дизайн-системы (ключи можно поменять в плагине).
+// Компоненты навигации: по умолчанию пусто, ключи/имена/ссылки задаёт пользователь («Из выделения»).
 const NAV_DEFAULTS = {
-  descKey: '639a2b1bbbbbda816369250b9086f84492e0d6a8', // DescriptionCard — название ряда
-  linkCardKey: '52de7d999184fd9ddde5cc25ec53d9592cb660ea', // LinkCard — блок «Навигация» со слотом ссылок
-  linkKey: '847bef013a0012336b6d66f5480e30253c17a2cf', // ButtonLink — запасной, если в слоте нет ссылок
-  btnKey: '9943f660a1c75accaf44c1a374152f5c8f66f6f9', // Button — кнопка «Вернуться к навигации» над фреймом
-  arrow16: 'ca6a267cb498c6c8c102a6da60698582a59a1d13', // 16/ArrowLeft
-  arrow20: '9669efcf6b300c22ccce952c0abcfd21d87ed3ae', // 20/ArrowLeft
-  arrow24: 'c57fa0c3e7e054d5acf0569634346f3295152b67', // 24/ArrowLeft — для large-кнопки
+  descKey: '', // DescriptionCard — название ряда
+  linkCardKey: '', // LinkCard — блок «Навигация» со слотом ссылок
+  linkKey: '', // ButtonLink — запасной, если в слоте нет ссылок
+  btnKey: '', // Button — кнопка «Вернуться к навигации» над фреймом
+  arrow16: '', // 16/ArrowLeft
+  arrow20: '', // 20/ArrowLeft
+  arrow24: '', // 24/ArrowLeft — для large-кнопки
 };
 const NAV_COL_GAP = 280; // между блоком навигации и первым фреймом ряда
 const NAV_CARD_GAP = 40; // между DescriptionCard и LinkCard
 const NAV_BTN_GAP = 37; // между кнопкой и фреймом
 
+// Почему ключ не импортировался (текст ошибки Figma) — показываем в сообщении «Не найден компонент».
+const navWhy = {};
 // Компонент по ключу (библиотека) либо локальный по ключу/имени.
 async function navComponent(spec, cache, localAll) {
   spec = String(spec || '').trim().replace(/^key:/, '');
@@ -1505,7 +1507,7 @@ async function navComponent(spec, cache, localAll) {
     return c;
   }
   if (/^[0-9a-f]{40}$/i.test(spec)) {
-    try { c = await figma.importComponentByKeyAsync(spec); } catch (e) {}
+    try { c = await figma.importComponentByKeyAsync(spec); } catch (e) { navWhy[spec] = (e && e.message) || String(e); }
     if (!c) { try { c = (await figma.importComponentSetByKeyAsync(spec)).defaultVariant; } catch (e) {} }
   }
   if (!c) {
@@ -1631,8 +1633,8 @@ async function navBuild(opts) {
     if (!localList) { await figma.loadAllPagesAsync(); localList = figma.root.findAllWithCriteria({ types: ['COMPONENT', 'COMPONENT_SET'] }); }
     return localList;
   };
-  // Режим по умолчанию — «Мои компоненты» (так работал плагин раньше); «Простой вид» рисует блок сам и компонентов не требует.
-  const simple = opts.mode === 'simple';
+  // Режим по умолчанию — «Простой вид» (рисует блок сам, компонентов не требует); «Мои компоненты» — только если выбран явно.
+  const simple = opts.mode !== 'components';
   let descC = null, cardC = null, btnC = null;
   if (simple) await simpleLoadFonts();
   else {
@@ -1640,7 +1642,7 @@ async function navBuild(opts) {
     cardC = await navComponent(cfg.linkCardKey, cache, localAll);
     btnC = await navComponent(cfg.btnKey, cache, localAll);
   }
-  const missing = simple ? [] : [[descC, 'название ряда'], [cardC, 'блок «Навигация»'], [btnC, 'кнопка над фреймом']].filter(([c]) => !c).map(([, n]) => n);
+  const missing = simple ? [] : [[descC, 'название ряда', cfg.descKey], [cardC, 'блок «Навигация»', cfg.linkCardKey], [btnC, 'кнопка над фреймом', cfg.btnKey]].filter(([c]) => !c).map(([, n, k]) => !k ? `${n} (поле пустое)` : /^https?:/i.test(String(k).trim()) ? `${n} (в поле ссылка: узел из другого файла по ссылке не открывается — нажми «Из выделения» на инстансе компонента)` : `${n} («${String(k).slice(0, 12)}…»${navWhy[String(k).trim().replace(/^key:/, '')] ? ': ' + navWhy[String(k).trim().replace(/^key:/, '')] : ''})`);
   if (missing.length) return { ok: false, text: `Не найден компонент: ${missing.join(', ')}. Выбери «Простой вид» в настройках навигации, чтобы плагин нарисовал блок сам, или укажи ключ, имя локального компонента или ссылку на компонент из этого файла. Проще всего: выдели на холсте инстанс нужного компонента и нажми «Из выделения» у его поля (библиотека должна быть подключена к файлу)` };
 
   await checkpoint('навигация по рядам', frames.length);

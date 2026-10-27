@@ -45,9 +45,9 @@ function setup() {
   const slot = new N('SLOT', 'LinksSlot'); slot.appendChild(lib.link.createInstance());
   lib.card = comp('LinkCard', {}, [slot]);
   const keys = {
-    '639a2b1bbbbbda816369250b9086f84492e0d6a8': lib.desc, '52de7d999184fd9ddde5cc25ec53d9592cb660ea': lib.card,
-    '847bef013a0012336b6d66f5480e30253c17a2cf': lib.link, '9943f660a1c75accaf44c1a374152f5c8f66f6f9': lib.btn,
-    'ca6a267cb498c6c8c102a6da60698582a59a1d13': lib.arrow, '9669efcf6b300c22ccce952c0abcfd21d87ed3ae': lib.arrow, 'c57fa0c3e7e054d5acf0569634346f3295152b67': lib.arrow,
+    'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa': lib.desc, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb': lib.card,
+    'cccccccccccccccccccccccccccccccccccccccc': lib.link, 'dddddddddddddddddddddddddddddddddddddddd': lib.btn,
+    'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee': lib.arrow, 'ffffffffffffffffffffffffffffffffffffffff': lib.arrow, '1111111111111111111111111111111111111111': lib.arrow,
   };
   const figma = {
     showUI() {}, on() {}, notify() {}, mixed: Symbol('mixed'),
@@ -71,9 +71,12 @@ const wrapperOf = (page) => page.children.find((c) => c.getSharedPluginData('fra
 const backs = (page) => page.children.filter((c) => c.getSharedPluginData('framelinter', 'navRole') === 'back');
 const hasClick = (n, dest) => n.reactions.some((r) => r.trigger.type === 'ON_CLICK' && r.actions[0].destinationId === dest);
 
-test('«Мои компоненты»: блок собирается из компонентов, как раньше', async () => {
+// Ключи задаются пользователем (в плагине по умолчанию пусто); здесь — те, что подставлены в поддельную Figma выше.
+const COMP = { descKey: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', linkCardKey: 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', linkKey: 'cccccccccccccccccccccccccccccccccccccccc', btnKey: 'dddddddddddddddddddddddddddddddddddddddd', arrow16: 'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee', arrow20: 'ffffffffffffffffffffffffffffffffffffffff', arrow24: '1111111111111111111111111111111111111111' };
+
+test('«Мои компоненты»: блок собирается из компонентов', async () => {
   const { page, frames, build } = setup();
-  const r = await build({ mode: 'components', label: 'Назад', comp: {} });
+  const r = await build({ mode: 'components', label: 'Назад', comp: COMP });
   assert.equal(r.ok, true, r.text);
   const w = wrapperOf(page);
   assert.ok(w, 'блок ряда создан');
@@ -101,11 +104,11 @@ test('«Простой вид»: компоненты не нужны, блок 
   b.forEach((x) => { assert.equal(x.type, 'FRAME'); assert.equal(x.findOne((n) => n.type === 'TEXT').characters, '← К навигации'); assert.ok(hasClick(x, w.id)); });
 });
 
-test('без режима работает как «Мои компоненты» (обратная совместимость)', async () => {
+test('без режима работает «Простой вид», компоненты не нужны', async () => {
   const { page, build } = setup();
   const r = await build({ label: 'x', comp: {} });
   assert.equal(r.ok, true, r.text);
-  assert.equal(wrapperOf(page).children[0].type, 'INSTANCE');
+  assert.equal(wrapperOf(page).children[0].type, 'FRAME');
 });
 
 test('нет компонентов в «Мои компоненты»: понятная ошибка и подсказка про простой вид', async () => {
@@ -119,11 +122,11 @@ test('нет компонентов в «Мои компоненты»: поня
 for (const mode of ['components', 'simple']) {
   test(`пересборка (${mode}): заполненное название ряда сохраняется, блоки не дублируются`, async () => {
     const { page, build } = setup();
-    assert.equal((await build({ mode, comp: {} })).ok, true);
+    assert.equal((await build({ mode, comp: COMP })).ok, true);
     const first = wrapperOf(page);
     const title = first.children[0];
     title.findOne((n) => n.type === 'TEXT').characters = 'Мой заголовок';
-    assert.equal((await build({ mode, comp: {} })).ok, true);
+    assert.equal((await build({ mode, comp: COMP })).ok, true);
     const wrappers = page.children.filter((c) => c.getSharedPluginData('framelinter', 'navRole') === 'panel');
     assert.equal(wrappers.length, 1, 'старый блок заменён, а не продублирован');
     assert.equal(backs(page).length, 3);
