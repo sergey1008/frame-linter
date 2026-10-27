@@ -59,6 +59,16 @@ node tools/pack.mjs                       # dist/frame-linter-v1.1.0.zip
 # GitHub → Releases → Draft a new release: тег v1.1.0, приложить zip
 ```
 
+Публикация в Figma Community (обновления там раздаёт сама Figma, поэтому сборка без проверки обновлений и без `networkAccess`):
+
+```sh
+node tools/pack.mjs --community           # dist/community/
+# Figma → Plugins → Development → Import plugin from manifest → dist/community/manifest.json
+# Plugins → Manage plugins → Publish (первый раз) или Publish new version; в описание версии — notes из version.json
+```
+
+После первой публикации Figma выдаёт постоянный `id`: впишите его в `manifest.json` в корне, иначе следующий Publish создаст новый плагин.
+
 Кнопка «Доступна версия» появляется у коллег, как только в ветке `main` лежит `version.json` с версией новее установленной, поэтому выкладывайте релиз с zip до или одновременно с пушем.
 
 Словари правописания пересобираются командой `cd tools && npm install && node build-spell.mjs`.
