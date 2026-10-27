@@ -12,6 +12,13 @@ const community = process.argv.includes('--community');
 const { version } = JSON.parse(fs.readFileSync(path.join(root, 'version.json'), 'utf8'));
 const read = (f) => fs.readFileSync(path.join(root, f), 'utf8');
 
+// Из UI убираем запрос к GitHub целиком: остаётся только подпись версии.
+function stripUpdateCheck(html) {
+  const re = /async function checkUpdate\(cur, repo\) \{[\s\S]*?\n\}\n/;
+  if (!re.test(html)) throw new Error('В ui.html не найдена checkUpdate');
+  return html.replace(re, "function checkUpdate(cur) { $('verTxt').textContent = 'v' + cur; }\n");
+}
+
 // Community: Figma сама раздаёт обновления, поэтому без запросов к GitHub.
 function communityFiles() {
   const code = read('code.js');
@@ -21,7 +28,7 @@ function communityFiles() {
   return {
     'manifest.json': JSON.stringify(manifest, null, 2) + '\n',
     'code.js': code.replace(/const UPDATE_REPO = '[^']*';/, "const UPDATE_REPO = '';"),
-    'ui.html': read('ui.html'),
+    'ui.html': stripUpdateCheck(read('ui.html')),
   };
 }
 const files = community ? communityFiles() : { 'manifest.json': read('manifest.json'), 'code.js': read('code.js'), 'ui.html': read('ui.html') };
